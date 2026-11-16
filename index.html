@@ -148,9 +148,17 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
  pre.code,.box pre,.sol pre{font-size:13px}
 }
 .zoom{display:flex;align-items:center;gap:6px;margin:6px 8px}.zval{font-size:12px;color:var(--mut);min-width:42px;text-align:center}.mrow{display:flex;justify-content:space-between;align-items:center}.mrow .zoom{margin:4px 0 0}
+.langsw{display:flex;gap:4px;margin:6px 8px}
+.langsw button{background:transparent;color:var(--acc);border:1px solid var(--acc);font-size:12.5px;padding:3px 9px;min-height:0}
+.langsw button.on{background:var(--acc);color:#fff}
+.mrow .langsw{margin:4px 0 0}
+html:lang(de) .box.trap::before{content:"⚠️ Klausur-Falle"}
+html:lang(de) .box.tip::before{content:"✅ Tipp"}
 </style>
 </head>
 <body>
+<div id="root"></div>
+<template id="tpl-cz">
 <div id="mtop"><select id="mnav" aria-label="Kapitola">
 <option value="#start">🏁 Start & plán na víkend</option>
 <option value="#k1">1 · Databázové systémy</option>
@@ -161,6 +169,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 <option value="#k6">6 · SELECT – základy</option>
 <option value="#k7">7 · WHERE – podmínky</option>
 <option value="#k8">8 · Agregace & GROUP BY</option>
+<option value="#k8b">8b · Funkce z IHK taháku</option>
 <option value="#k9">9 · JOIN</option>
 <option value="#k10">10 · Poddotazy</option>
 <option value="#k11">11 · Uživatelé & práva</option>
@@ -174,13 +183,14 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 <option value="#sandbox">🧪 Pískoviště (SQL)</option>
 <option value="#glossar">📖 Slovníček DE–CZ–EN</option>
 <option value="#chyby">🔍 Chyby v podkladech & tahák</option>
-</select><div class="mrow"><div class="sync">…</div><div class="zoom"></div></div></div>
+</select><div class="mrow"><div class="sync">…</div><div class="langsw"><button type="button" data-lang="cz">🇨🇿</button><button type="button" data-lang="de">🇩🇪</button></div><div class="zoom"></div></div></div>
 <div class="wrap">
 <nav id="nav">
 <h1>🗄️ Datenbanken</h1>
 <div class="sub">Lernwerkstatt · SQL & Datenbanken</div>
 <div class="prog"><div id="pbar"></div></div>
 <div id="ptext">…</div>
+<div class="langsw"><button type="button" data-lang="cz">🇨🇿 CZ</button><button type="button" data-lang="de">🇩🇪 DE</button></div>
 <div class="zoom"></div>
 <div id="engine-status">SQL motor se načítá…</div>
 <div class="sync">…</div>
@@ -196,6 +206,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 <a href="#k6">6 · SELECT<span class="cnt"></span></a>
 <a href="#k7">7 · WHERE<span class="cnt"></span></a>
 <a href="#k8">8 · Agregace & GROUP BY<span class="cnt"></span></a>
+<a href="#k8b">8b · Funkce (IHK tahák)<span class="cnt"></span></a>
 <a href="#k9">9 · JOIN<span class="cnt"></span></a>
 <a href="#k10">10 · Poddotazy<span class="cnt"></span></a>
 <div class="grp">Pokročilé</div>
@@ -804,6 +815,82 @@ GROUP BY Tickettyp;</div>
 <div class="box merk">Mit GROUP BY werden Datensätze mit gleichem Wert zu Gruppen zusammengefasst; Aggregatfunktionen (COUNT, SUM, AVG, MIN, MAX) werden dann pro Gruppe berechnet. Mit HAVING werden Gruppen gefiltert, mit WHERE einzelne Datensätze vor der Gruppierung.</div>
 </section>
 
+<!-- ================= K8b ================= -->
+<section class="ch" id="k8b">
+<h2>8b · Funkce z IHK taháku (<span class="de">SQL-Syntax Auszug</span>)</h2>
+<p class="lead">Všechno ze strany 39 tvého taháku „SQL-Syntax (Auszug)“ – tenhle list nejspíš dostaneš u IHK zkoušky. Funkce se píšou do SELECT, WHERE, GROUP BY i ORDER BY.</p>
+
+<div class="box trap"><b>Tahák IHK ≠ MariaDB.</b> Tahák je obecný a u některých funkcí (DATEADD, DATEDIFF) používá zápis z <b>Microsoft SQL Serveru</b>. V Klausur na papíře piš tak, jak to chce zadání nebo tahák. V pískovišti tady fungují <b>oba zápisy</b>, takže můžeš zkoušet obojí. Rozdíly jsou v tabulce níž.</div>
+
+<h3>Textové funkce: LEFT a RIGHT</h3>
+<table class="t">
+<tr><th>Zápis</th><th>Co vrátí</th><th>Příklad</th></tr>
+<tr><td><code>LEFT(Zeichenkette, Anzahl)</code></td><td>prvních <i>Anzahl</i> znaků <b>zleva</b></td><td><code>LEFT('Riesenrad', 5)</code> → <code>Riese</code></td></tr>
+<tr><td><code>RIGHT(Zeichenkette, Anzahl)</code></td><td>posledních <i>Anzahl</i> znaků <b>zprava</b></td><td><code>RIGHT('Riesenrad', 3)</code> → <code>rad</code></td></tr>
+</table>
+<div class="box analog">Představ si jméno jako řadu písmen na papíře. LEFT(…, 3) = odstřihneš nůžkami první 3 písmena zleva. RIGHT(…, 3) = odstřihneš poslední 3 zprava.</div>
+<div class="box trap">Nepleť si <b>LEFT(text, n)</b> (funkce na text) a <b>LEFT JOIN</b> (spojení tabulek, kapitola 9). Mají jen stejné slovo.</div>
+<div class="demo" data-db="park">SELECT Name, LEFT(Name, 3) AS Links, RIGHT(Name, 3) AS Rechts FROM Attraktion;</div>
+<div class="ex" data-id="f1"></div>
+<div class="ex" data-id="f2"></div>
+<div class="ex" data-id="f3"></div>
+
+<h3>Datum a čas: YEAR, MONTH, DAY, WEEKDAY, HOUR, MINUTE, NOW</h3>
+<table class="t">
+<tr><th>Funkce</th><th>Vrátí</th><th>Příklad → výsledek</th></tr>
+<tr><td><code>NOW()</code></td><td>teď: datum + čas</td><td>např. <code>2026-11-16 14:05:00</code></td></tr>
+<tr><td><code>YEAR(d)</code> / <code>MONTH(d)</code> / <code>DAY(d)</code></td><td>rok / měsíc / den jako číslo</td><td><code>MONTH('2026-11-08')</code> → 11</td></tr>
+<tr><td><code>WEEKDAY(d)</code></td><td>den v týdnu jako číslo, <b>pondělí = 0</b> … neděle = 6</td><td><code>WEEKDAY('2026-11-08')</code> → 6 (neděle)</td></tr>
+<tr><td><code>HOUR(t)</code> / <code>MINUTE(t)</code></td><td>hodina / minuta</td><td><code>HOUR('14:25:00')</code> → 14</td></tr>
+</table>
+<div class="box trap"><b>WEEKDAY začíná nulou.</b> Pondělí = 0, ne 1. To je typický chyták.</div>
+<div class="demo" data-db="park">SELECT Datum, YEAR(Datum), MONTH(Datum), DAY(Datum), WEEKDAY(Datum) FROM Verkauf;</div>
+<p>Funkci můžeš dát i do <b>GROUP BY</b> – třeba „kolik návštěv bylo v každé hodině“:</p>
+<div class="demo" data-db="park">SELECT HOUR(Uhrzeit) AS Stunde, COUNT(*) AS Anzahl
+FROM Besuche
+GROUP BY HOUR(Uhrzeit);</div>
+<div class="ex" data-id="f4"></div>
+<div class="ex" data-id="f5"></div>
+<div class="ex" data-id="f6"></div>
+<div class="ex" data-id="f7"></div>
+<div class="ex" data-id="f8"></div>
+
+<h3>Počítání s datem: DATEDIFF a DATEADD</h3>
+<p><b>Datumsteil</b> (část data) = jednotka, ve které počítáš: <code>DAY, MONTH, YEAR, HOUR, MINUTE</code>.</p>
+<table class="t">
+<tr><th>Co</th><th>IHK tahák (= SQL Server)</th><th>MariaDB</th></tr>
+<tr><td>Rozdíl dvou dat</td><td><code>DATEDIFF(DAY, Start, Ende)</code><br>→ Ende − Start, v jednotce</td><td><code>DATEDIFF(Ende, Start)</code><br>→ vždy ve dnech, <b>obrácené pořadí</b>, bez jednotky</td></tr>
+<tr><td>Přičíst k datu</td><td><code>DATEADD(DAY, 14, Datum)</code></td><td><code>DATE_ADD(Datum, INTERVAL 14 DAY)</code></td></tr>
+</table>
+<div class="box analog">DATEDIFF je jako počítat na kalendáři, kolik dní uplynulo mezi dvěma kroužky. DATEADD je jako na kalendáři odpočítat 14 dní dopředu a zapsat si to datum.</div>
+<div class="demo" data-db="bib">SELECT Ausleihe_ID, Ausleihdatum, Rueckgabedatum,
+       DATEDIFF(DAY, Ausleihdatum, Rueckgabedatum) AS Tage_IHK,
+       DATEDIFF(Rueckgabedatum, Ausleihdatum)      AS Tage_MariaDB
+FROM Ausleihe
+WHERE Rueckgabedatum IS NOT NULL;</div>
+<div class="ex" data-id="f9"></div>
+<div class="ex" data-id="f10"></div>
+
+<h3>Statistika: STDDEV, VARIANCE, CORR</h3>
+<p>Jsou to agregační funkce jako AVG – z mnoha hodnot udělají jedno číslo.</p>
+<table class="t">
+<tr><th>Funkce</th><th>Česky</th><th>Co znamená</th></tr>
+<tr><td><code>STDDEV(sl)</code></td><td>směrodatná odchylka (<span class="de">Standardabweichung</span>)</td><td>o kolik se hodnoty <b>typicky</b> liší od průměru</td></tr>
+<tr><td><code>VARIANCE(sl)</code></td><td>rozptyl (<span class="de">Varianz</span>)</td><td>odchylka na druhou (STDDEV = odmocnina z VARIANCE)</td></tr>
+<tr><td><code>CORR(sl1, sl2)</code></td><td>korelace</td><td>jak spolu dvě hodnoty souvisí: 1 = úplně (100 %), 0 = vůbec</td></tr>
+</table>
+<div class="box analog">Dvě třídy mají průměr známek 3. V první mají všichni trojku → odchylka 0. Ve druhé jsou jen jedničky a pětky → odchylka velká. Průměr je stejný, ale odchylka ukáže, jak „rozházené“ jsou hodnoty.</div>
+<div class="ex" data-id="f11"></div>
+<div class="box tip">CORR v MariaDB ve skutečnosti <b>neexistuje</b> (je v Oracle a PostgreSQL). Je ale v taháku, tak ho znej aspoň významem. V pískovišti funguje: <code>SELECT CORR(Preis, Jahr) FROM Buch;</code> (DB Bibliothek) → asi 0,17, tedy cena a rok vydání spolu skoro nesouvisí.</div>
+
+<h3>Operátory z taháku</h3>
+<p><code>UNION</code> spojí výsledky dvou dotazů pod sebe (duplikáty vyhodí). Aritmetika: <code>*</code> násobení, <code>/</code> dělení, <code>+</code>, <code>-</code>. Ostatní (<code>AND, OR, NOT, IS NULL, LIKE, =, &lt;&gt;</code>…) znáš z kapitoly 7.</p>
+<div class="demo" data-db="park">SELECT Vorname AS Name FROM Besucher
+UNION
+SELECT Name FROM Snacks;</div>
+<div class="box merk">LEFT(Zeichenkette, Anzahl) liefert Zeichen von links, RIGHT von rechts. WEEKDAY liefert den Wochentag als Zahl, wobei Montag = 0 ist. DATEDIFF berechnet die Differenz zwischen zwei Datumsangaben, DATEADD addiert ein Intervall zu einem Datum.</div>
+</section>
+
 <!-- ================= K9 ================= -->
 <section class="ch" id="k9">
 <h2>9 · JOIN – spojování tabulek</h2>
@@ -892,6 +979,23 @@ WHERE Preis > (SELECT AVG(Preis) FROM Snacks);</div>
 <div class="ex" data-id="u5"></div>
 <div class="ex" data-id="u6"></div>
 <div class="box trap">Pravidla z knihy: 1) poddotaz vždy v <b>kulatých závorkách</b>; 2) jedna hodnota → porovnávací operátory; 3) víc hodnot → množinové operátory (IN…); 4) <b>ORDER BY a UNION v poddotazu ne</b>. Poddotazy se vnořovat <b>smí</b>.</div>
+
+
+<h3>Poddotaz ve FROM – „mezitabulka“ (<span class="de">Unterabfrage im FROM</span>)</h3>
+<p>Tohle je na první straně tvého IHK taháku: <code>SELECT … FROM (SELECT … FROM … WHERE …) AS tbl WHERE …</code>. Výsledek vnitřního dotazu se chová jako <b>dočasná tabulka</b> se jménem <code>tbl</code>, a z ní se pak dál vybírá.</p>
+<div class="box analog">Nejdřív si na papír sepíšeš mezivýsledek (třeba „kolik návštěv měl každý návštěvník“). Pak s tím papírem počítáš dál („jaký je průměr z těch čísel“). Poddotaz ve FROM je ten papír s mezivýsledkem.</div>
+<p><b>Kdy ho potřebuješ:</b> když chceš agregaci z agregace. <code>AVG(COUNT(*))</code> SQL <b>nedovolí</b>. Musíš nejdřív spočítat COUNT na skupinu (mezitabulka) a pak z ní AVG.</p>
+<div class="demo" data-db="park">-- Krok 1: mezitabulka (spusť si ji samostatně)
+SELECT Besucher_ID, COUNT(*) AS Anzahl FROM Besuche GROUP BY Besucher_ID;</div>
+<div class="demo" data-db="park">-- Krok 2: průměr z mezitabulky
+SELECT AVG(Anzahl) AS Durchschnitt
+FROM (SELECT Besucher_ID, COUNT(*) AS Anzahl
+      FROM Besuche
+      GROUP BY Besucher_ID) AS tbl;</div>
+<div class="box trap">V MariaDB musí mít poddotaz ve FROM <b>alias</b> (<code>AS tbl</code>), jinak chyba „Every derived table must have its own alias“. A sloupce uvnitř, se kterými chceš venku počítat (COUNT(*)…), pojmenuj aliasem (<code>AS Anzahl</code>), abys na ně venku mohl odkázat.</div>
+<div class="ex" data-id="u8"></div>
+<div class="ex" data-id="u9"></div>
+<div class="ex" data-id="u10"></div>
 
 <h3>Poddotazy v INSERT a CREATE TABLE</h3>
 <pre class="code">INSERT INTO Archiv (Datum, Menge) SELECT Datum, Menge FROM Verkauf WHERE Datum < '2026-11-09';
@@ -1287,6 +1391,1237 @@ DBS = Datenbasis + DBMS · ANSI/SPARC: extern – konzeptionell – intern · St
 
 </main>
 </div>
+</template>
+<template id="tpl-de">
+<div id="mtop"><select id="mnav" aria-label="Kapitel">
+<option value="#start">🏁 Start & Wochenendplan</option>
+<option value="#k1">1 · Datenbanksysteme</option>
+<option value="#k2">2 · Entwurf & ER-Modell</option>
+<option value="#k3">3 · Relationales Modell & ERM-Umwandlung</option>
+<option value="#k4">4 · Normalisierung</option>
+<option value="#k5">5 · SQL: DDL & DML</option>
+<option value="#k6">6 · SELECT – Grundlagen</option>
+<option value="#k7">7 · WHERE – Bedingungen</option>
+<option value="#k8">8 · Aggregatfunktionen & GROUP BY</option>
+<option value="#k8b">8b · Funktionen aus dem IHK-Spickzettel</option>
+<option value="#k9">9 · JOIN</option>
+<option value="#k10">10 · Unterabfragen</option>
+<option value="#k11">11 · Benutzer & Rechte</option>
+<option value="#k12">12 · Stored Procedures</option>
+<option value="#k13">13 · Trigger</option>
+<option value="#k14">14 · Transaktionen & ACID</option>
+<option value="#k15">15 · NoSQL</option>
+<option value="#klausur1">📝 Probeklausur AdventureLand</option>
+<option value="#klausur2">📝 Klausur-Simulation B</option>
+<option value="#quiz">❓ Quiz Richtig/Falsch</option>
+<option value="#sandbox">🧪 Sandbox (SQL)</option>
+<option value="#glossar">📖 Glossar DE–CZ–EN</option>
+<option value="#chyby">🔍 Fehler in den Unterlagen & Spickzettel</option>
+</select><div class="mrow"><div class="sync">…</div><div class="langsw"><button type="button" data-lang="cz">🇨🇿</button><button type="button" data-lang="de">🇩🇪</button></div><div class="zoom"></div></div></div>
+<div class="wrap">
+<nav id="nav">
+<h1>🗄️ Datenbanken</h1>
+<div class="sub">Lernwerkstatt · SQL & Datenbanken</div>
+<div class="prog"><div id="pbar"></div></div>
+<div id="ptext">…</div>
+<div class="langsw"><button type="button" data-lang="cz">🇨🇿 CZ</button><button type="button" data-lang="de">🇩🇪 DE</button></div>
+<div class="zoom"></div>
+<div id="engine-status">SQL-Engine lädt …</div>
+<div class="sync">…</div>
+<div class="grp">Start</div>
+<a href="#start">🏁 Start & Plan<span class="cnt"></span></a>
+<div class="grp">Theorie</div>
+<a href="#k1">1 · Datenbanksysteme<span class="cnt"></span></a>
+<a href="#k2">2 · Entwurf & ER-Modell<span class="cnt"></span></a>
+<a href="#k3">3 · Relationales Modell<span class="cnt"></span></a>
+<a href="#k4">4 · Normalisierung<span class="cnt"></span></a>
+<div class="grp">SQL</div>
+<a href="#k5">5 · DDL & DML<span class="cnt"></span></a>
+<a href="#k6">6 · SELECT<span class="cnt"></span></a>
+<a href="#k7">7 · WHERE<span class="cnt"></span></a>
+<a href="#k8">8 · Aggregat & GROUP BY<span class="cnt"></span></a>
+<a href="#k8b">8b · Funktionen (IHK)<span class="cnt"></span></a>
+<a href="#k9">9 · JOIN<span class="cnt"></span></a>
+<a href="#k10">10 · Unterabfragen<span class="cnt"></span></a>
+<div class="grp">Fortgeschritten</div>
+<a href="#k11">11 · Benutzer & Rechte<span class="cnt"></span></a>
+<a href="#k12">12 · Stored Procedures<span class="cnt"></span></a>
+<a href="#k13">13 · Trigger<span class="cnt"></span></a>
+<a href="#k14">14 · Transaktionen & ACID<span class="cnt"></span></a>
+<a href="#k15">15 · NoSQL<span class="cnt"></span></a>
+<div class="grp">Prüfung</div>
+<a href="#klausur1">📝 Probeklausur 2025<span class="cnt"></span></a>
+<a href="#klausur2">📝 Simulation B<span class="cnt"></span></a>
+<a href="#quiz">❓ Quiz Richtig/Falsch<span class="cnt"></span></a>
+<div class="grp">Werkzeuge</div>
+<a href="#sandbox">🧪 Sandbox<span class="cnt"></span></a>
+<a href="#glossar">📖 Glossar<span class="cnt"></span></a>
+<a href="#chyby">🔍 Fehler & Spickzettel<span class="cnt"></span></a>
+</nav>
+<main>
+
+<!-- ================= START ================= -->
+<section class="ch" id="start">
+<h2>Hallo 👋 – das ist deine Datenbank-Lernwerkstatt</h2>
+<p class="lead">Alles aus deinen Unterlagen (15 Präsentationen, Cheatsheet, Lehrbuch LF5 + LF8, IHK-Spickzettel, Probeklausur AdventureLand) an einem Ort: Erklärungen auf Deutsch, und vor allem <b>Übungen, die sich selbst prüfen</b> – mit der echten Freizeitpark-Datenbank.</p>
+
+<div class="box tip">Keine Sorge, ich setze nichts voraus. Jedes Kapitel fängt bei null an: <b>erst ein konkretes Beispiel, dann der Fachbegriff</b>. Oben links kannst du jederzeit auf 🇨🇿 Tschechisch umschalten – dein Fortschritt bleibt gleich.</div>
+
+<h3>So funktioniert das Werkzeug</h3>
+<ol class="steps">
+<li><b>Kapitel lesen</b> – Erklärung, Analogie, „Klausur-Merksatz“ (ein Satz, den du in der Klausur genau so schreiben kannst).</li>
+<li><b>Graue Codeblöcke</b> haben den Button <b>▶ Ausprobieren</b> – sie laufen auf einer echten Datenbank, und du siehst das Ergebnis.</li>
+<li><b>Übungen</b> (blauer Streifen links): SQL schreiben → <b>▶ Ausführen</b> zeigt dein Ergebnis, <b>✓ Prüfen</b> vergleicht es mit der richtigen Lösung. Kürzel: <span class="kbd">Strg</span> + <span class="kbd">Enter</span>.</li>
+<li><b>Tipp und Lösung</b> erst nach dem eigenen Versuch öffnen. Eine gelesene Lösung lernst du nicht – eine selbst erarbeitete schon.</li>
+<li>Jede Übung startet mit einer <b>frischen Datenbank</b>. Du kannst nichts kaputt machen. 🙂</li>
+<li>Der Fortschritt (abgehakte Übungen, deine Antworten, Quiz) wird <b>nur auf diesem Gerät und in diesem Browser</b> gespeichert. Auf iPhone/iPad kann Safari ihn löschen, wenn du die Seite länger als 7 Tage nicht öffnest.</li>
+<li><b>Auf iPhone/iPad:</b> Wenn du in ein SQL-Feld tippst, erscheint darunter eine <b>Leiste mit SQL-Tasten</b> (SELECT, FROM, JOIN, ', `, ; …) – mit dem Finger zur Seite wischen. Diagramme mit dem Finger nach links/rechts schieben.</li>
+</ol>
+
+<h3>Was in der Klausur zu erwarten ist (nach der Probeklausur 2025)</h3>
+<table class="t">
+<tr><th>Teil</th><th>Punkte</th><th>Was genau</th></tr>
+<tr><td>SQL-Abfragen (Missionen 1–12)</td><td>80 / 100</td><td>JOIN über 2–3 Tabellen (≈ 40 P.), LIKE, GROUP BY + COUNT/SUM, AVG, WHERE</td></tr>
+<tr><td>ER-Modell / Datenmodell (Mission 13)</td><td>20 / 100</td><td>neue Tabelle ergänzen, Beziehungen, Kardinalitäten, PK/FK</td></tr>
+</table>
+<div class="box trap">Die Probeklausur 2025 hatte nur SQL-Abfragen + Datenmodell. Dein Kurs hat seitdem aber auch <b>Rechte (GRANT/REVOKE), Prozeduren, Trigger, Transaktionen und NoSQL</b> behandelt (Präsentationen 07–11). <b>Ich weiß nicht</b>, ob und wie viel davon in deiner Klausur vorkommt – frag deinen Lehrer, oder rechne damit, dass etwas davon drankommen kann. Deshalb ist es hier auch drin, aber mit weniger Gewicht.</div>
+<p>Die Klausur wird <b>auf Papier</b> geschrieben (steht in Präsentation 01). Das heißt: kein Ausprobieren, „ob es läuft“ – du musst SQL aus dem Kopf schreiben können, inklusive Semikolon, Anführungszeichen und Aliasse. Schreib die Lösungen deshalb <b>von Hand</b>, nicht kopieren.</p>
+
+<h3>Plan fürs Wochenende</h3>
+<div class="plan">
+<div class="box"><b>Samstag Vormittag (≈ 2,5 h) – Theorie</b>
+Kap. 1 → 4: DBS, ER-Modell, relationales Modell, Normalisierung.<br>Am Ende: Quiz mit Filter „Grundlagen“, „ER-Modell“, „Relationales Modell“, „Normalisierung“.</div>
+<div class="box"><b>Samstag Nachmittag (≈ 3 h) – SQL-Grundlagen</b>
+Kap. 5 → 8b: CREATE/INSERT/UPDATE/DELETE, SELECT, WHERE, GROUP BY, Funktionen.<br>Ziel: alle Übungen S, W, A grün.</div>
+<div class="box"><b>Sonntag Vormittag (≈ 3 h) – JOIN & Unterabfragen</b>
+Kap. 9 + 10. Das bringt <b>die meisten Punkte in der Klausur</b>. Hör nicht auf, bevor J1–J9 ohne Tipp klappen.</div>
+<div class="box"><b>Sonntag Nachmittag (≈ 3 h) – Probeklausur</b>
+Kap. 11–15 schnell (1 h). Dann die <b>Probeklausur AdventureLand</b> auf Papier, zuerst ohne Werkzeug! Dann hier abtippen und prüfen. Zum Schluss Simulation B mit Timer.</div>
+</div>
+<div class="box tip">Alle 45–50 Minuten 10 Minuten Pause und kurz spazieren gehen. Abends das Glossar durchgehen (Tschechisch ausblenden und dich selbst abfragen).</div>
+
+<h3>Die Datenbank, mit der du arbeitest</h3>
+<p>Freizeitpark = <b>genau</b> die Datenbank aus der Probeklausur (deine Datei <code>DatenbankFreizeitpark.sql</code>). PK = Primärschlüssel, FK = Fremdschlüssel, 1/N = Kardinalität. Was das bedeutet, erkläre ich in Kapitel 3 – jetzt erst mal nur anschauen.</p>
+<div data-erd="park"></div>
+<p>Die zweite Datenbank <b>Bibliothek</b> ist neu – mit ihr merkst du, ob du SQL wirklich kannst oder nur die Lösungen von AdventureLand auswendig weißt:</p>
+<div data-erd="bib"></div>
+</section>
+
+<!-- ================= K1 ================= -->
+<section class="ch" id="k1">
+<h2>1 · Datenbanksysteme</h2>
+<p class="lead">Präsentation 01 + Lehrbuch LF5 S. 586–593. Was eine Datenbank ist, woraus sie besteht und wie man sie einteilt.</p>
+
+<h3>Warum überhaupt Datenbanken?</h3>
+<p>Stell dir vor, der Freizeitpark führt die Besucher in einer Excel-Datei, die Tickets in einer zweiten und die Snack-Verkäufe in Word. Lena ändert ihren Nachnamen → du musst ihn in drei Dateien ändern. Eine vergisst du → die Daten widersprechen sich. Genau wegen dieses Problems sind in den 60er-Jahren Datenbanken entstanden: <b>Daten an einem Ort, ein Programm, das sie verwaltet</b>.</p>
+
+<h3>Woraus ein Datenbanksystem besteht</h3>
+<table class="t">
+<tr><th>Begriff</th><th>Was es ist</th><th>Beispiel</th></tr>
+<tr><td><span class="de">Datenbasis</span></td><td>die gespeicherten Daten selbst – eine strukturierte Sammlung. In Bildern als <b>Zylinder</b> dargestellt (erinnert an Festplatten).</td><td>Tabellen Besucher, Snacks …</td></tr>
+<tr><td><span class="de">Datenbankmanagementsystem (DBMS)</span></td><td>das Programm, das den Zugriff auf die Daten steuert: Speicherung, Datenmodell, Mehrbenutzerbetrieb, Datensicherheit, Datenschutz.</td><td>MariaDB, MySQL, PostgreSQL, Oracle, MS SQL Server, MS Access, SAP HANA</td></tr>
+<tr><td><span class="de">Datenbanksystem (DBS)</span></td><td>beides zusammen</td><td>DBS = Datenbasis + DBMS</td></tr>
+</table>
+<div class="box analog">Bibliothek: Die <b>Datenbasis</b> sind die Bücher im Regal. Das <b>DBMS</b> ist die Bibliothekarin – niemand greift selbst ins Regal. Du sagst ihr, was du willst (= SQL-Abfrage), sie sucht es, prüft, ob du es darfst, und passt auf, dass nicht zwei Leute gleichzeitig in dasselbe Buch schreiben.</div>
+<div class="box merk">Ein Datenbanksystem (DBS) besteht aus der Datenbasis und dem Datenbankmanagementsystem (DBMS). Das DBMS verwaltet den Zugriff auf die Datenbasis.</div>
+<div class="box trap">„MySQL ist eine Datenbasis.“ → <b>FALSCH</b>. MySQL ist ein DBMS, also ein Programm. Datenbasis sind erst die Daten, die MySQL verwaltet.</div>
+
+<h3>ANSI/SPARC – die 3-Schichten-Architektur</h3>
+<p>Das Ziel in einem Satz: <b>Anwendungen von der physischen Speicherung der Daten trennen</b> (Entkopplung). Wenn der Admin die Festplatte tauscht oder einen Index anlegt, darf keine Anwendung kaputtgehen.</p>
+<table class="t">
+<tr><th>Schicht</th><th>Was sie beschreibt</th><th>Im Freizeitpark</th></tr>
+<tr><td><b>1. <span class="de">Externes Schema</span></b></td><td>die Sicht des Benutzers – er sieht nur, was er braucht. Mehrere Benutzergruppen = mehrere externe Schemata → braucht ein <span class="de">Berechtigungskonzept</span>.</td><td>Die Kasse sieht Tickets und Preise, der Snackstand nur Snacks und Verkauf.</td></tr>
+<tr><td><b>2. <span class="de">Konzeptionelles Schema</span></b></td><td><b>alle</b> Entitäten und ihre Beziehungen – <b>ohne konkrete Werte</b>. Unabhängig von Anwendungen, stabil, ändert sich selten. Wird vom Datenmodell bestimmt (hierarchisch, Netzwerk, relational).</td><td>ER-Diagramm des Parks (Tabellen + Beziehungen)</td></tr>
+<tr><td><b>3. <span class="de">Internes Schema</span></b></td><td>physische Speicherung: auf welchem Medium, Speicheralgorithmen, Indizes, Sortierung. Know-how des Entwicklers, <b>der Benutzer sieht es nicht</b>.</td><td>InnoDB-Dateien auf der Festplatte des Servers</td></tr>
+</table>
+<div class="box analog">Restaurant: <b>extern</b> = Speisekarte (der Gast sieht nur die Gerichte). <b>Konzeptionell</b> = Rezepte, was woraus besteht. <b>Intern</b> = wie Vorratskammer und Kühlschrank eingeräumt sind. Der Koch kann die Kammer umbauen, und der Gast merkt auf der Speisekarte nichts davon.</div>
+<div class="box merk">Die ANSI/SPARC-Architektur besteht aus drei Schichten: externes, konzeptionelles und internes Schema. Ziel ist die Entkopplung der Anwendungen von der physischen Datenspeicherung.</div>
+<div class="box trap">„Das externe und das interne Schema hängen stark voneinander ab.“ → <b>FALSCH</b>. Genau dafür liegt das konzeptionelle Schema dazwischen.</div>
+
+<h3>Einteilung nach dem Betriebskonzept</h3>
+<table class="t">
+<tr><th>Typ</th><th>Wo liegt die DB, wo läuft das DBMS?</th><th>+ / −</th><th>Beispiele</th></tr>
+<tr><td><span class="de">Stand-Alone-Datenbank</span></td><td>beides auf einem Rechner, ein Benutzer</td><td>+ einfach<br>− kein Mehrbenutzerzugriff, keine Rechte</td><td>Access, dBase, FileMaker (Adressbuch, Haushaltsbuch)</td></tr>
+<tr><td><span class="de">File-Share-Datenbank</span></td><td>DB liegt auf dem Server, <b>das DBMS (Programm) läuft auf jedem Client</b></td><td>+ keine Redundanz, Änderungen sofort für alle sichtbar<br>− viel Netzwerkverkehr, ineffizientes Sperren bei gleichzeitigen Änderungen</td><td>Access-Datei auf einem Netzlaufwerk</td></tr>
+<tr><td><span class="de">Client-Server-Datenbank</span></td><td>DB <b>und</b> DBMS auf dem Server, der Client hat nur die Oberfläche</td><td>+ Sicherheit, Leistung, Flexibilität<br>− braucht einen <span class="de">Datenbankadministrator</span></td><td>MySQL, MariaDB, Oracle, DB2, SQL Server, MaxDB</td></tr>
+</table>
+<div class="box trap">Am häufigsten werden File-Share und Client-Server verwechselt. Entscheidend ist: <b>Wo läuft das DBMS?</b> File-Share = auf dem Client, Client-Server = auf dem Server.</div>
+
+<h3>Einteilung nach dem Datenmodell</h3>
+<table class="t">
+<tr><th>Art</th><th>Prinzip</th><th>Beispiel</th></tr>
+<tr><td><span class="de">Hierarchische DB</span></td><td>Baum; jeder Datensatz (außer der Wurzel) hat <b>genau einen</b> Vorgänger; Redundanz möglich. Ältestes Modell.</td><td>IMS (IBM), Dateisystem</td></tr>
+<tr><td><span class="de">Netzwerkdatenbank</span></td><td>Erweiterung der Hierarchie: mehrere Vorgänger → <b>m:n</b> möglich, weniger Redundanz</td><td>–</td></tr>
+<tr><td><span class="de">Relationale DB</span></td><td>Tabellen mit Beziehungen; Standard seit 1970 (E. F. Codd); schwächer bei riesigen Datenmengen</td><td>MySQL, MariaDB, SQL Server, SQLite</td></tr>
+<tr><td><span class="de">Objektdatenbank</span></td><td>Daten + Funktionen als Objekte (wie in Java); mächtig, aber kompliziert, heute selten</td><td>db4o</td></tr>
+<tr><td><span class="de">Objektrelationale DB</span></td><td>Kombination aus relational + objektorientiert</td><td>PostgreSQL</td></tr>
+<tr><td><span class="de">NoSQL</span></td><td>Key-Value, Dokument, Graph, Spalten – Kapitel 15</td><td>Redis, MongoDB, Neo4j, Cassandra</td></tr>
+</table>
+
+<h3>Teste dich</h3>
+<p>Öffne das <a href="#quiz">Quiz</a> und wähle das Thema <b>Grundlagen</b>. Ziel: 12/12.</p>
+</section>
+
+<!-- ================= K2 ================= -->
+<section class="ch" id="k2">
+<h2>2 · Datenbankentwurf & ER-Modell</h2>
+<p class="lead">Präsentation 02 + Lehrbuch LF5 S. 593–599, LF8 S. 273–276.</p>
+
+<h3>Die 4 Phasen des Designprozesses</h3>
+<table class="t">
+<tr><th>Phase</th><th>Was gemacht wird</th><th>Ergebnis</th></tr>
+<tr><td>1. <span class="de">Analysephase</span></td><td>Anforderungen des Kunden ermitteln und strukturieren (Interviews, Fragebögen)</td><td>informelle Problembeschreibung (<span class="de">Anforderungsanalyse</span>)</td></tr>
+<tr><td>2. <span class="de">Konzeptionelle Phase</span></td><td><b>ER-Modell</b> zeichnen: Entitäten, Attribute, Beziehungen, Kardinalitäten</td><td>ER-Modell</td></tr>
+<tr><td>3. <span class="de">Logische Phase</span></td><td>ERM in das <b>relationale Modell</b> (Tabellen) umwandeln, PK + FK, <b>normalisieren</b></td><td>relationales Datenmodell</td></tr>
+<tr><td>4. <span class="de">Implementierungsphase</span></td><td>SQL schreiben (<code>CREATE TABLE …</code>), Datentypen, Wertebereiche</td><td>funktionierende, leere Datenbank</td></tr>
+</table>
+<div class="box trap">Typische Fangfrage: „Das ER-Modell wird in der logischen Phase erstellt.“ → <b>FALSCH</b>, das ERM entsteht in der <b>konzeptionellen</b> Phase. Die Normalisierung gehört zur <b>logischen</b> Phase.</div>
+<div class="box tip">Merkhilfe für die Reihenfolge: <b>A-K-L-I</b> → „<b>A</b>nalyse, <b>K</b>onzept (ERM zeichnen), <b>L</b>ogik (Tabellen), <b>I</b>mplementierung (SQL)“. Die ersten beiden sind unabhängig vom DBMS, erst die Implementierung ist für ein bestimmtes DBMS.</div>
+
+<h3>Bausteine des ER-Modells (Chen-Notation)</h3>
+<table class="t">
+<tr><th>Begriff</th><th>Symbol</th><th>Bedeutung</th><th>Freizeitpark</th></tr>
+<tr><td><span class="de">Entität</span></td><td>–</td><td>ein konkretes Objekt / ein Datensatz</td><td>Lena Schmidt</td></tr>
+<tr><td><span class="de">Entitätstyp</span></td><td><b>Rechteck</b></td><td>Gruppe gleichartiger Entitäten</td><td>Besucher</td></tr>
+<tr><td><span class="de">Attribut</span></td><td><b>Ellipse</b></td><td>Eigenschaft („Daten“) einer Entität</td><td>Vorname, Alter</td></tr>
+<tr><td><span class="de">Schlüsselattribut</span></td><td>Ellipse, <u>unterstrichen</u></td><td>identifiziert die Entität eindeutig</td><td><u>Besucher_ID</u></td></tr>
+<tr><td><span class="de">Beziehung</span> (Relationship)</td><td><b>Raute</b>, darin ein Verb</td><td>inhaltliche Verbindung zweier Entitätstypen</td><td>besucht, kauft, besitzt</td></tr>
+<tr><td><span class="de">Kardinalität</span></td><td>1, n, m an den Linien</td><td>in welchem Verhältnis die Entitäten zueinander stehen</td><td>1 Besucher : n Tickets</td></tr>
+</table>
+<div class="box merk">Entitätstyp = Rechteck, Attribut = Ellipse, Beziehung = Raute. Das Schlüsselattribut wird unterstrichen. Bei m:n-Beziehungen können der Beziehung selbst Attribute zugeordnet werden.</div>
+
+<h3>Der Freizeitpark als ER-Modell</h3>
+<div class="scrollx"><svg class="chen" viewBox="0 0 760 350" role="img" aria-label="ER-Modell Freizeitpark in Chen-Notation">
+ <line x1="160" y1="162" x2="202" y2="162"/><line x1="278" y1="162" x2="320" y2="162"/>
+ <line x1="440" y1="162" x2="482" y2="162"/><line x1="558" y1="162" x2="600" y2="162"/>
+ <line x1="380" y1="184" x2="380" y2="215"/><line x1="380" y1="259" x2="380" y2="290"/>
+ <line x1="240" y1="184" x2="240" y2="216"/><line x1="510" y1="180" x2="495" y2="216"/><line x1="530" y1="180" x2="575" y2="216"/>
+ <line x1="100" y1="101" x2="100" y2="140"/><line x1="660" y1="101" x2="660" y2="140"/>
+ <line x1="270" y1="101" x2="330" y2="140"/><line x1="350" y1="71" x2="365" y2="140"/><line x1="430" y1="71" x2="400" y2="140"/><line x1="500" y1="101" x2="430" y2="140"/>
+ <line x1="440" y1="312" x2="470" y2="312"/>
+ <rect class="ent" x="40" y="140" width="120" height="44" rx="3"/><text x="100" y="162">Attraktion</text>
+ <rect class="ent" x="320" y="140" width="120" height="44" rx="3"/><text x="380" y="162">Besucher</text>
+ <rect class="ent" x="600" y="140" width="120" height="44" rx="3"/><text x="660" y="162">Snack</text>
+ <rect class="ent" x="320" y="290" width="120" height="44" rx="3"/><text x="380" y="312">Ticket</text>
+ <polygon class="rel2" points="240,140 278,162 240,184 202,162"/><text x="240" y="162">besucht</text>
+ <polygon class="rel2" points="520,140 558,162 520,184 482,162"/><text x="520" y="162">kauft</text>
+ <polygon class="rel2" points="380,215 418,237 380,259 342,237"/><text x="380" y="237">besitzt</text>
+ <ellipse class="att" cx="100" cy="85" rx="55" ry="16"/><text x="100" y="85" class="u">Attraktion_ID</text>
+ <ellipse class="att" cx="660" cy="85" rx="45" ry="16"/><text x="660" y="85" class="u">Snack_ID</text>
+ <ellipse class="att" cx="270" cy="85" rx="50" ry="16"/><text x="270" y="85" class="u">Besucher_ID</text>
+ <ellipse class="att" cx="350" cy="55" rx="40" ry="16"/><text x="350" y="55">Vorname</text>
+ <ellipse class="att" cx="430" cy="55" rx="42" ry="16"/><text x="430" y="55">Nachname</text>
+ <ellipse class="att" cx="500" cy="85" rx="30" ry="16"/><text x="500" y="85">Alter</text>
+ <ellipse class="att" cx="240" cy="232" rx="40" ry="16"/><text x="240" y="232">Uhrzeit</text>
+ <ellipse class="att" cx="495" cy="232" rx="36" ry="16"/><text x="495" y="232">Menge</text>
+ <ellipse class="att" cx="575" cy="232" rx="36" ry="16"/><text x="575" y="232">Datum</text>
+ <ellipse class="att" cx="515" cy="312" rx="45" ry="16"/><text x="515" y="312" class="u">Ticket_ID</text>
+ <text x="176" y="150" class="c">n</text><text x="300" y="150" class="c">m</text>
+ <text x="456" y="150" class="c">m</text><text x="580" y="150" class="c">n</text>
+ <text x="392" y="200" class="c">1</text><text x="392" y="278" class="c">n</text>
+</svg></div>
+<p>Lies das als Sätze, immer <b>von beiden Seiten</b>:</p>
+<ul>
+<li><b>besucht (m:n)</b>: Ein Besucher besucht mehrere Attraktionen. Eine Attraktion wird von mehreren Besuchern besucht. → m:n. Die Beziehung hat ein eigenes Attribut <b>Uhrzeit</b> (die Zeit gehört zum Besuch, nicht zur Person und nicht zur Attraktion).</li>
+<li><b>kauft (m:n)</b>: Ein Besucher kauft mehrere Snacks, ein Snack wird von mehreren Besuchern gekauft. Attribute der Beziehung: Menge, Datum.</li>
+<li><b>besitzt (1:n)</b>: Ein Besucher kann mehrere Tickets haben, ein Ticket gehört <b>genau einem</b> Besucher.</li>
+</ul>
+
+<h3>Kardinalitäten</h3>
+<table class="t">
+<tr><th>Typ</th><th>Satz für die Klausur</th><th>Beispiel</th></tr>
+<tr><td><b>1:1</b></td><td>Eine Entität A gehört zu genau einer Entität B und umgekehrt.</td><td>Mitarbeiter – Personalakte; Land – Hauptstadt</td></tr>
+<tr><td><b>1:n</b></td><td>Ein A hat mehrere B, aber jedes B gehört nur zu einem A.</td><td>Gebäude – Raum; Besucher – Ticket; Verlag – Buch</td></tr>
+<tr><td><b>m:n</b></td><td>Ein A hat mehrere B <b>und</b> ein B hat mehrere A.</td><td>Kunde – Artikel; Schüler – Kurs; Buch – Autor</td></tr>
+</table>
+<div class="box tip"><b>Trick mit zwei Fragen:</b> 1) „Wie viele B kann ein A haben?“ 2) „Wie viele A kann ein B haben?“ Zweimal „eins“ → 1:1. Einmal „mehrere“ → 1:n. Zweimal „mehrere“ → m:n.</div>
+
+<h3>Übung – Kardinalitäten (auf Papier, dann aufdecken)</h3>
+<table class="t">
+<tr><th>Paar</th><th>Deine Antwort</th></tr>
+<tr><td>a) Planet – Mond</td><td rowspan="6">auf Papier schreiben …</td></tr>
+<tr><td>b) Buch – Verlag</td></tr>
+<tr><td>c) Volleyballspieler – Mannschaft (in einer Saison, einer Liga)</td></tr>
+<tr><td>d) Klasse – Schüler</td></tr>
+<tr><td>e) Kino – Film</td></tr>
+<tr><td>f) Auto – Automarke</td></tr>
+</table>
+<button class="reveal-btn ghost small" data-t="kard-sol">👁 Lösung aufdecken</button>
+<div id="kard-sol" class="box hidden">
+a) Planet 1 : n Mond (ein Planet hat mehrere Monde, ein Mond umkreist einen Planeten)<br>
+b) Verlag 1 : n Buch (ein Verlag veröffentlicht mehrere Bücher; ein Buch (eine konkrete Ausgabe) hat einen Verlag)<br>
+c) Mannschaft 1 : n Spieler (ein Spieler spielt für eine Mannschaft)<br>
+d) Klasse 1 : n Schüler<br>
+e) Kino m : n Film (ein Kino zeigt mehrere Filme, ein Film läuft in mehreren Kinos)<br>
+f) Automarke 1 : n Auto<br>
+<i>Achtung: Das Buch gibt absichtlich auch strittige Paare (PLZ – Ort, Mitarbeiter – Gehalt). Dort ist die <b>Begründung</b> die richtige Antwort. Z. B. PLZ – Ort: Eine Großstadt hat mehrere PLZ, und eine PLZ kann mehrere kleine Orte haben → m:n.</i>
+</div>
+
+<h3>Übung – ERM zeichnen</h3>
+<div class="box">Aufgabe (aus dem Buch, Beispielaufgabe Zoo): <i>„Der Zoo hat verschiedene Tiere, die jeweils einer bestimmten Tiergattung zugeordnet werden. Für ein Tier ist immer genau ein Pfleger verantwortlich. Ein Pfleger versorgt immer mehrere Tiere. Jedes Tier ist in einer Unterkunft untergebracht, in der es in der Regel mit mehreren Tieren zusammenlebt.“</i><br>Finde die Entitätstypen (Substantive!), Beziehungen (Verben!) und Kardinalitäten.</div>
+<button class="reveal-btn ghost small" data-t="zoo-sol">👁 Lösung aufdecken</button>
+<div id="zoo-sol" class="box hidden">
+Entitätstypen: <b>Tier, Tiergattung, Tierpfleger, Unterkunft</b> (der Zoo selbst nicht – es gibt nur einen).<br>
+Beziehungen: Tier <b>gehört zu</b> Tiergattung (n:1) · Tierpfleger <b>betreut</b> Tier (1:n) · Tier <b>lebt in</b> Unterkunft (n:1).<br>
+Alle drei sind 1:n. Im Mittelpunkt des Diagramms steht das Tier.
+</div>
+</section>
+
+<!-- ================= K3 ================= -->
+<section class="ch" id="k3">
+<h2>3 · Relationales Modell & Umwandlung des ER-Modells in Tabellen</h2>
+<p class="lead">Präsentation 03 + Lehrbuch LF5 S. 599–609. Hier wird aus der Zeichnung eine Tabelle – und genau das ist Mission 13 (20 Punkte!).</p>
+
+<h3>Begriffe einer relationalen Tabelle</h3>
+<table class="t">
+<tr><th>Deutsch</th><th>Bedeutung</th><th>Im Freizeitpark</th></tr>
+<tr><td><span class="de">Relation / Tabelle</span> (+ <span class="de">Relationsname</span>)</td><td>Tabelle</td><td>Besucher</td></tr>
+<tr><td><span class="de">Attribut / Spalte / Feld</span></td><td>Spalte</td><td>Vorname</td></tr>
+<tr><td><span class="de">Datensatz / Tupel / Zeile</span></td><td>Zeile</td><td>(1, Lena, Schmidt, 27)</td></tr>
+<tr><td><span class="de">Attributwert</span></td><td>Wert in einer Zelle</td><td>„Lena“</td></tr>
+</table>
+
+<h3>Primärschlüssel (PK)</h3>
+<p>Die kleinste Kombination von Spalten, die eine Zeile <b>eindeutig</b> identifiziert. Jede Tabelle hat <b>genau einen</b> PK (er kann aber aus mehreren Spalten zusammengesetzt sein).</p>
+<table class="t">
+<tr><th>Anforderung</th><th>Bedeutet</th></tr>
+<tr><td><span class="de">Eindeutigkeit</span></td><td>der Wert darf sich nicht wiederholen</td></tr>
+<tr><td><span class="de">Minimalität</span></td><td>so wenig Spalten wie möglich (meist eine)</td></tr>
+<tr><td><span class="de">Unveränderbarkeit</span></td><td>der Wert soll sich nicht ändern</td></tr>
+</table>
+<div class="box analog">Warum nicht „Vorname + Nachname“ als Schlüssel? Becker gibt es im Park zweimal (Jonas und Mia), und zwei Thomas Müller sind in Deutschland ganz normal. Deshalb nimmt man einen <b>künstlichen Schlüssel</b> – Besucher_ID – eine Zahl ohne Bedeutung. Ein <span class="de">sprechender Schlüssel</span> (z. B. die PLZ in der Kundennummer) ist schlecht: Der Kunde zieht um, und der Schlüssel müsste sich ändern.</div>
+
+<h3>Fremdschlüssel (FK)</h3>
+<p>Eine Spalte, die <b>auf den PK einer anderen (oder derselben) Tabelle zeigt</b>. Sie muss den <b>gleichen Datentyp</b> haben wie dieser PK. Eine Tabelle kann 0, 1 oder mehrere FK haben.</p>
+<p>Im Freizeitpark: <code>Tickets.Besucher_ID</code> zeigt auf <code>Besucher.Besucher_ID</code>. Ticket Nr. 3 hat Besucher_ID = 3 → es gehört Sophie.</p>
+<div class="demo" data-db="park">SELECT * FROM Tickets;</div>
+
+<h3>Referenzielle Integrität</h3>
+<p>Jeder FK-Wert <b>muss</b> als PK in der referenzierten Tabelle existieren. Das DBMS passt darauf auf:</p>
+<ul><li>Man kann kein Ticket für Besucher_ID = 99 einfügen, wenn es Besucher 99 nicht gibt.</li><li>Man kann Lena nicht löschen, solange Tickets, Besuche oder Verkauf auf sie zeigen.</li></ul>
+<div class="ex" data-id="d6"></div>
+<div class="box merk">Referenzielle Integrität besagt, dass die Werte des Fremdschlüssels als Werte des Primärschlüssels in der Primärschlüsseltabelle vorhanden sein müssen. Dadurch wird Dateninkonsistenz vermieden.</div>
+
+<h3>Transformationsregeln ERM → Tabellen</h3>
+<ol class="steps">
+<li><b>Jeder Entitätstyp</b> mit allen Attributen = <b>eine Tabelle</b>.</li>
+<li><b>Jede Tabelle bekommt einen PK.</b> Wenn es kein passendes Attribut gibt → künstlicher Schlüssel (ID).</li>
+<li><b>1:n</b>: Der PK der <b>„1“-Seite</b> wird als <b>FK in die „n“-Seite</b> eingefügt.</li>
+<li><b>m:n</b>: Es entsteht eine <b>eigene Tabelle</b> (<span class="de">Kreuztabelle / Zwischentabelle</span>) mit den PK beider Tabellen als FK + den Attributen der Beziehung. Damit wird m:n in zwei 1:n aufgelöst.</li>
+<li>(1:1: FK in eine der beiden Tabellen, oft werden die Tabellen einfach zusammengelegt.)</li>
+</ol>
+<div class="box trap">Der häufigste Fehler: FK auf der falschen Seite bei 1:n. Merkhilfe: <b>„Der FK wandert zu den Vielen“</b> – der Fremdschlüssel steht immer dort, wo das „n“ ist. Ein Besucher hat viele Tickets → Besucher_ID steht in der Tabelle Tickets (nicht Ticket_ID in Besucher! In eine Zelle könntest du nicht mehrere Tickets schreiben).</div>
+<p>Jetzt verstehst du den Freizeitpark: Die m:n-Beziehung „besucht“ wurde zur Tabelle <b>Besuche</b> (FK Attraktion_ID + FK Besucher_ID + Attribut Uhrzeit). Die m:n-Beziehung „kauft“ wurde zur Tabelle <b>Verkauf</b> (FK Besucher_ID + FK Snack_ID + Menge, Datum). Die 1:n-Beziehung „besitzt“ = FK Besucher_ID in Tickets.</p>
+<div data-erd="park"></div>
+
+<h3>Mission 13 – wie man sie löst (20 Punkte)</h3>
+<p>Aufgabe 2025: Das Datenmodell um eine <b>Verkaufstabelle für Tickets</b> ergänzen, damit eine Kaufhistorie, die Preisentwicklung und der Kauf mehrerer Tickets (z. B. für die Familie) möglich werden. Nur die neue Tabelle, Beziehungen, Kardinalitäten und <b>alle PK und FK</b> einzeichnen.</p>
+<ol class="steps">
+<li>Neue Tabelle <b>Ticketverkauf</b> mit eigenem PK <b>Ticketverkauf_ID (PK)</b>.</li>
+<li>Attribute des Verkaufs: <b>Menge</b>, <b>Datum</b> (gerne auch <b>Preis</b> – der Preis am Verkaufstag, wegen „Preisentwicklung“).</li>
+<li>Wer hat gekauft → <b>Besucher_ID (FK)</b>. Was wurde gekauft → <b>Ticket_ID (FK)</b>.</li>
+<li>Beziehungen: Besucher <b>1 — n</b> Ticketverkauf, Tickets <b>1 — n</b> Ticketverkauf.</li>
+<li>PK/FK auch in den bestehenden Tabellen kennzeichnen (Tickets: Ticket_ID PK, Besucher_ID FK).</li>
+</ol>
+<div class="box tip">Muster, das immer funktioniert: „Ein <b>Ereignis</b> (Verkauf, Ausleihe, Besuch) = eigene Tabelle mit <b>eigener ID, Datum und FK auf alle Beteiligten</b>.“ Schau: Besuche, Verkauf und Ausleihe in der Bibliothek sehen genau gleich aus.</div>
+
+<h3>Übung – in Tabellen umwandeln</h3>
+<div class="box">ER-Modell (Buch S. 609): <b>Kino</b> (KinoNr, Name) —<i>zeigt</i> (m:n, Attribute Datum, Uhrzeit)— <b>Film</b> (FilmNr, Titel) —<i>hat</i> (m:n)— <b>Darsteller</b> (DarstellerNr, Vorname, Name).<br>Schreib alle Tabellen mit PK und FK auf.</div>
+<button class="reveal-btn ghost small" data-t="kino-sol">👁 Lösung aufdecken</button>
+<div id="kino-sol" class="box hidden">
+<b>Kino</b> (<u>KinoNr</u> PK, Name)<br>
+<b>Film</b> (<u>FilmNr</u> PK, Titel)<br>
+<b>Darsteller</b> (<u>DarstellerNr</u> PK, Vorname, Name)<br>
+<b>Vorstellung</b> (<u>VorstellungID</u> PK, KinoNr FK, FilmNr FK, Datum, Uhrzeit) – aus m:n „zeigt“. Der Schlüssel kann auch zusammengesetzt sein (KinoNr, FilmNr, Datum, Uhrzeit), eine künstliche ID ist einfacher.<br>
+<b>Film_Darsteller</b> (<u>FilmNr</u> PK/FK, <u>DarstellerNr</u> PK/FK) – aus m:n „hat“, zusammengesetzter PK.<br>
+Beziehungen: Kino 1–n Vorstellung n–1 Film · Film 1–n Film_Darsteller n–1 Darsteller.
+</div>
+<h3>Übung – Mission 13 zum Üben</h3>
+<div class="box">Der Park will <b>Mitarbeiter</b> erfassen (Vorname, Nachname). Ein Mitarbeiter betreut während der Woche mehrere Attraktionen, eine Attraktion wird von mehreren Mitarbeitern betreut, und zu jeder <span class="de">Schicht</span> werden Datum und Beginn gespeichert. Ergänze das Datenmodell: neue Tabellen, Beziehungen, Kardinalitäten, PK/FK.</div>
+<button class="reveal-btn ghost small" data-t="ma-sol">👁 Lösung aufdecken</button>
+<div id="ma-sol" class="box hidden">
+<b>Mitarbeiter</b> (<u>Mitarbeiter_ID</u> PK, Vorname, Nachname)<br>
+<b>Schicht</b> (<u>Schicht_ID</u> PK, Datum, Beginn, Mitarbeiter_ID FK, Attraktion_ID FK)<br>
+Mitarbeiter 1 — n Schicht n — 1 Attraktion. (m:n „betreut“ aufgelöst über die Kreuztabelle Schicht.)
+</div>
+</section>
+
+<!-- ================= K4 ================= -->
+<section class="ch" id="k4">
+<h2>4 · Normalisierung</h2>
+<p class="lead">Präsentation 03 (2. Teil) + Lehrbuch LF5 S. 605–607, LF8 S. 277–281.</p>
+
+<h3>Das Problem: Redundanz und Anomalien</h3>
+<p>Stell dir vor, der Park hätte alles in einer Tabelle:</p>
+<table class="t">
+<tr><th>Besucher_ID</th><th>Name</th><th>Snack</th><th>Snackpreis</th><th>Menge</th></tr>
+<tr><td>1</td><td>Lena Schmidt</td><td>Popcorn</td><td>3,50</td><td>1</td></tr>
+<tr><td>1</td><td>Lena Schmidt</td><td>Limonade</td><td>3,20</td><td>1</td></tr>
+<tr><td>2</td><td>Max Müller</td><td>Popcorn</td><td>3,50</td><td>3</td></tr>
+</table>
+<ul>
+<li><span class="de">Datenredundanz</span> = dieselbe Information mehrfach gespeichert (Lena 2×, Popcornpreis 2×).</li>
+<li><span class="de">Datenkonsistenz</span> = die Daten sind widerspruchsfrei. Redundanz gefährdet sie.</li>
+</ul>
+<table class="t">
+<tr><th>Anomalie</th><th>Was passiert</th><th>Beispiel</th></tr>
+<tr><td><span class="de">Änderungsanomalie</span></td><td>beim Ändern wird ein Duplikat vergessen</td><td>Popcorn wird 3,80 € teurer – nur eine Zeile geändert → Popcorn hat 2 Preise</td></tr>
+<tr><td><span class="de">Einfügeanomalie</span></td><td>etwas kann nicht ohne andere Information eingefügt werden</td><td>Neuer Snack „Eis“ kann nicht gespeichert werden, solange ihn niemand kauft</td></tr>
+<tr><td><span class="de">Löschanomalie</span></td><td>beim Löschen verschwinden auch Daten, die man nicht löschen wollte</td><td>Maxens Kauf wird gelöscht → der einzige Hinweis, dass es Max gibt, verschwindet</td></tr>
+</table>
+<div class="box merk">Normalisierung ist ein Verfahren zur Verringerung von Datenredundanz in relationalen Datenmodellen. Ziel ist es, Anomalien (Einfüge-, Änderungs-, Löschanomalie) zu vermeiden und die Datenkonsistenz zu erhöhen.</div>
+
+<h3>Schritt für Schritt am Beispiel (aus der Präsentation – Flüge)</h3>
+<p><b>Nicht normalisierte Tabelle:</b></p>
+<table class="t"><tr><th>Kunde</th><th>Name</th><th>Flug</th><th>Ziel</th><th>Land</th><th>Fluggesellschaft</th></tr>
+<tr><td>K1013</td><td>Meier, R.</td><td>M107, AT286</td><td>Paris, Edmonton</td><td>F, CA</td><td>Moeve, AirTrans</td></tr>
+<tr><td>K8516</td><td>Schulz, B.</td><td>AT286</td><td>Edmonton</td><td>CA</td><td>AirTrans</td></tr>
+<tr><td>K1005</td><td>Koch, A.</td><td>A456</td><td>Paris</td><td>F</td><td>Albatros</td></tr></table>
+
+<h4>1. NF – alles atomar</h4>
+<p>In einer Zelle darf <b>ein</b> unteilbarer Wert stehen. „M107, AT286“ sind zwei → auf 2 Zeilen aufteilen. (Das Buch würde auch „Meier, R.“ in Nachname + Vorname trennen – mach das in der Klausur ruhig, es zeigt, dass du es verstanden hast.)</p>
+<table class="t"><tr><th><u>Kunde</u></th><th>Name</th><th><u>Flug</u></th><th>Ziel</th><th>Land</th><th>Fluggesellschaft</th></tr>
+<tr><td>K1013</td><td>Meier, R.</td><td>M107</td><td>Paris</td><td>F</td><td>Moeve</td></tr>
+<tr><td>K1013</td><td>Meier, R.</td><td>AT286</td><td>Edmonton</td><td>CA</td><td>AirTrans</td></tr>
+<tr><td>…</td><td></td><td></td><td></td><td></td><td></td></tr></table>
+<p>Der Schlüssel ist jetzt <b>zusammengesetzt</b>: Kunde + Flug.</p>
+
+<h4>2. NF – alles hängt vom <b>gesamten</b> Schlüssel ab</h4>
+<p>Frage bei jeder Nichtschlüssel-Spalte: „Brauche ich zur Bestimmung den <b>ganzen</b> Schlüssel, oder reicht ein <b>Teil</b>?“</p>
+<ul><li>Name hängt nur vom Kunden ab → in eine Tabelle <b>Kunden</b> (Kunde, Name).</li>
+<li>Ziel, Land, Fluggesellschaft hängen nur vom Flug ab → <b>Flüge</b> (Flug, Ziel, Land, Fluggesellschaft).</li>
+<li>Übrig bleibt <b>Flugbuchungen</b> (Kunde, Flug) – wer fliegt mit welchem Flug.</li></ul>
+<div class="box tip">Die 2. NF betrifft <b>nur</b> Tabellen mit <b>zusammengesetztem</b> Schlüssel. Eine Tabelle mit einspaltigem PK, die in der 1. NF ist, ist automatisch in der 2. NF.</div>
+
+<h4>3. NF – keine transitiven Abhängigkeiten</h4>
+<p>Transitiv = <b>indirekt</b>: Flug → Ziel → Land. Das Land hängt nicht vom Flug ab, sondern von der Zielstadt (Paris liegt immer in F). Also: <b>Ziele</b> (Ziel, Land) als eigene Tabelle, in Flüge bleibt Ziel als FK.</p>
+<p><b>Ergebnis in der 3. NF:</b> Kunden (<u>Kunde</u>, Name) · Flüge (<u>Flug</u>, Ziel FK, Fluggesellschaft) · Ziele (<u>Ziel</u>, Land) · Flugbuchungen (<u>Kunde</u>, <u>Flug</u>).</p>
+<div class="box merk">1. NF: Alle Attribute sind atomar. 2. NF: 1. NF + jedes Nichtschlüsselattribut ist vom gesamten Primärschlüssel voll funktional abhängig. 3. NF: 2. NF + kein Nichtschlüsselattribut ist transitiv vom Primärschlüssel abhängig.</div>
+<div class="box analog">Prüfsatz für alle drei (englische Merkhilfe): Jede Spalte muss abhängen von <b>„the key, the whole key, and nothing but the key“</b> – vom Schlüssel (1. NF), vom ganzen Schlüssel (2. NF) und von nichts anderem als dem Schlüssel (3. NF).</div>
+
+<h3>Weitere Normalformen & Nachteile</h3>
+<p>BCNF (alle Abhängigkeiten nur vom Schlüssel), 4. NF (keine mehrwertigen Abhängigkeiten), 5. NF – in der Praxis macht man die 1.–3. NF.</p>
+<p><b>Nachteile (zu starker) Normalisierung</b>: viele kleine Tabellen → viele JOINs → langsamere Antwortzeiten; mehr künstliche Schlüssel → komplexeres System, mehr Fehler; Schlüssel brauchen Platz (auch eine Art Redundanz). → Man sucht einen Kompromiss.</p>
+
+<h3>Übung – selbst normalisieren</h3>
+<div class="box">Tabelle „Bestellung“ (Buch LF8 S. 277):<br>
+<table class="t"><tr><th>BestellNr</th><th>Datum</th><th>Kunde</th><th>Bestellpositionen</th></tr>
+<tr><td>1</td><td>12.12.2020</td><td>Maier – KNr: 71</td><td>1. 2 Tische Nr. 12, 2. 3 Schränke Nr. 88</td></tr>
+<tr><td>2</td><td>14.12.2020</td><td>Maier – KNr: 71</td><td>1. 4 Stühle Nr. 67</td></tr>
+<tr><td>3</td><td>14.12.2020</td><td>Schulz – KNr: 33</td><td>1. 4 Tische Nr. 12, 2. 8 Stühle Nr. 67, 3. 1 Schrank Nr. 88</td></tr></table>
+Bringe sie in die 1., 2. und 3. NF. Auf Papier!</div>
+<button class="reveal-btn ghost small" data-t="nf-sol">👁 Lösung aufdecken</button>
+<div id="nf-sol" class="box hidden">
+<b>1. NF:</b> Kunde aufteilen in <b>KNr, Name</b>; Positionen in <b>Pos, Anzahl, Bezeichnung, ANr</b>, eine Zeile pro Position. Schlüssel: <u>BestellNr + Pos</u>.<br>
+<b>2. NF:</b> Datum, KNr, Name hängen nur von BestellNr ab → <b>Bestellung</b> (<u>BestellNr</u>, Datum, KNr, Name). Der Rest → <b>Bestellposition</b> (<u>BestellNr</u>, <u>Pos</u>, ANr, Bezeichnung, Anzahl).<br>
+<b>3. NF:</b> transitiv: BestellNr → KNr → Name ⇒ <b>Kunde</b> (<u>KNr</u>, Name); und Pos → ANr → Bezeichnung ⇒ <b>Artikel</b> (<u>ANr</u>, Bezeichnung).<br>
+Ergebnis: Kunde (<u>KNr</u>, Name) · Bestellung (<u>BestellNr</u>, Datum, KNr FK) · Bestellposition (<u>BestellNr</u> FK, <u>Pos</u>, ANr FK, Anzahl) · Artikel (<u>ANr</u>, Bezeichnung).
+</div>
+</section>
+
+<!-- ================= K5 ================= -->
+<section class="ch" id="k5">
+<h2>5 · SQL: Überblick, DDL und DML</h2>
+<p class="lead">Lehrbuch LF5 S. 610–615 + Cheatsheet. SQL = <span class="de">Structured Query Language</span>, in den 70er-Jahren bei IBM entwickelt (ursprünglich SEQUEL). ANSI/ISO-Standard, aber jedes DBMS hat seinen eigenen „Dialekt“.</p>
+
+<h3>4 Gruppen von Befehlen</h3>
+<table class="t">
+<tr><th>Gruppe</th><th>Wofür</th><th>Befehle</th></tr>
+<tr><td><b>DDL</b> – <span class="de">Data Definition Language</span></td><td>Struktur (Tabellen)</td><td>CREATE, ALTER, DROP</td></tr>
+<tr><td><b>DML</b> – <span class="de">Data Manipulation Language</span></td><td>Daten in den Tabellen</td><td>SELECT, INSERT, UPDATE, DELETE</td></tr>
+<tr><td><b>DCL</b> – <span class="de">Data Control Language</span></td><td>Berechtigungen</td><td>GRANT, REVOKE</td></tr>
+<tr><td><b>TCL</b> – <span class="de">Transaction Control Language</span></td><td>Transaktionen</td><td>COMMIT, ROLLBACK</td></tr>
+</table>
+<div class="box tip">Merkhilfe: <b>DDL</b> = du baust die „Regale“ (Tabellen). <b>DML</b> = du stellst „Ware“ in die Regale (Daten), nimmst sie raus und änderst sie. <b>DCL</b> = du verteilst Schlüssel (wer darf an die Regale). <b>TCL</b> = der Knopf „speichern / rückgängig“.</div>
+
+<h3>Schreibregeln</h3>
+<ul>
+<li>Groß-/Kleinschreibung der Schlüsselwörter ist egal (<code>select</code> = <code>SELECT</code>). Üblich: Schlüsselwörter GROSS.</li>
+<li>Jeder Befehl endet mit einem <b>Semikolon</b> <code>;</code></li>
+<li>Text und Datum in <b>einfache Anführungszeichen</b>: <code>'Lena'</code>, <code>'2026-11-08'</code>. Zahlen ohne Anführungszeichen: <code>39.90</code> (Dezimal<b>punkt</b>!).</li>
+<li>Namen, die reservierte Wörter sind, in <b>Backticks</b>: <code>`Alter`</code>.</li>
+<li><code>NULL</code> = „kein Wert“. Das ist weder 0 noch ein leerer Text. Geprüft wird mit <code>IS NULL</code>.</li>
+</ul>
+
+<h3>Datentypen</h3>
+<table class="t">
+<tr><th>Typ</th><th>Was</th><th>Im Freizeitpark</th></tr>
+<tr><td>INT / INTEGER, BIGINT</td><td><span class="de">Ganzzahl</span></td><td>Alter, Menge, alle IDs</td></tr>
+<tr><td>DECIMAL(m,n) / NUMERIC</td><td><span class="de">Festkommazahl</span> – <b>für Geld</b>. DECIMAL(6,2) = 6 Ziffern insgesamt, davon 2 nach dem Komma → max. 9999.99</td><td>Preis</td></tr>
+<tr><td>FLOAT, DOUBLE</td><td><span class="de">Gleitkommazahl</span> – ungenau, nicht für Geld</td><td>–</td></tr>
+<tr><td>VARCHAR(n)</td><td>Text mit <b>variabler</b> Länge, max. n Zeichen</td><td>Name VARCHAR(100)</td></tr>
+<tr><td>CHAR(n)</td><td>Text mit <b>fester</b> Länge (wird mit Leerzeichen aufgefüllt)</td><td>z. B. PLZ CHAR(5)</td></tr>
+<tr><td>DATE, TIME, DATETIME/TIMESTAMP</td><td>Datum <code>'JJJJ-MM-TT'</code>, Uhrzeit <code>'HH:MM:SS'</code></td><td>Datum, Uhrzeit</td></tr>
+<tr><td>BOOLEAN</td><td>wahr/falsch</td><td>–</td></tr>
+</table>
+
+<h3>CREATE TABLE – Tabelle anlegen</h3>
+<pre class="code">CREATE TABLE Tickets (
+    Ticket_ID   INT           NOT NULL AUTO_INCREMENT,
+    Tickettyp   VARCHAR(50)   NOT NULL,
+    Preis       DECIMAL(6,2)  NOT NULL,
+    Besucher_ID INT           NOT NULL,
+    PRIMARY KEY (Ticket_ID),
+    FOREIGN KEY (Besucher_ID) REFERENCES Besucher (Besucher_ID)
+);</pre>
+<table class="t">
+<tr><th>Option (<span class="de">Constraint</span>)</th><th>Bedeutung</th></tr>
+<tr><td>NOT NULL</td><td>ein Wert muss angegeben werden</td></tr>
+<tr><td>AUTO_INCREMENT</td><td>die DB nummeriert selbst 1, 2, 3 … (MariaDB/MySQL)</td></tr>
+<tr><td>DEFAULT x</td><td>Standardwert, wenn nichts angegeben wird (Status DEFAULT 'geöffnet')</td></tr>
+<tr><td>UNIQUE</td><td>Werte dürfen sich nicht wiederholen</td></tr>
+<tr><td>PRIMARY KEY (sp)</td><td>Primärschlüssel</td></tr>
+<tr><td>FOREIGN KEY (sp) REFERENCES T(sp)</td><td>Fremdschlüssel auf Tabelle T</td></tr>
+</table>
+<div class="box trap">Reihenfolge beim Anlegen: <b>zuerst die Tabelle, auf die verwiesen wird</b> (Besucher), <b>dann</b> die mit dem FK (Tickets). Sonst zeigt REFERENCES ins Leere. Beim Löschen (DROP) ist es umgekehrt.</div>
+<div class="ex" data-id="d7"></div>
+
+<h3>ALTER TABLE & DROP TABLE</h3>
+<pre class="code">ALTER TABLE Snacks ADD COLUMN Kalorien INT;          -- Spalte hinzufügen
+ALTER TABLE Snacks MODIFY COLUMN Name VARCHAR(150);  -- Typ ändern (MariaDB)
+ALTER TABLE Snacks DROP COLUMN Kalorien;             -- Spalte löschen
+DROP TABLE Snacks;                                   -- ganze Tabelle löschen</pre>
+<div class="ex" data-id="d5"></div>
+
+<h3>INSERT – Zeilen einfügen</h3>
+<div class="demo" data-db="park">INSERT INTO Snacks (Name, Preis) VALUES ('Eis', 2.80);
+SELECT * FROM Snacks;</div>
+<p>Snack_ID gibst du nicht an – AUTO_INCREMENT. Mehrere Zeilen auf einmal: <code>VALUES ('A', 1.0), ('B', 2.0);</code></p>
+<div class="ex" data-id="d1"></div>
+
+<h3>UPDATE – Werte ändern</h3>
+<pre class="code">UPDATE Tabelle SET Spalte = neuer_Wert WHERE Bedingung;</pre>
+<div class="box trap"><b>UPDATE ohne WHERE ändert ALLE Zeilen!</b> Bevor du UPDATE/DELETE ausführst, schreib zuerst <code>SELECT * FROM … WHERE …</code> mit derselben Bedingung und schau, welche Zeilen du triffst.</div>
+<div class="ex" data-id="d2"></div>
+<div class="ex" data-id="d3"></div>
+<p>Einen Wert „löschen“ (nicht die Zeile): <code>UPDATE Person SET Gewicht = NULL WHERE PersonID = 21;</code> – die Zeile bleibt, nur die Zelle ist leer.</p>
+
+<h3>DELETE – Zeilen löschen</h3>
+<pre class="code">DELETE FROM Tabelle WHERE Bedingung;</pre>
+<p>DELETE löscht immer <b>ganze Zeilen</b> → deshalb stehen nach DELETE keine Spalten, sondern direkt FROM.</p>
+<div class="ex" data-id="d4"></div>
+</section>
+
+<!-- ================= K6 ================= -->
+<section class="ch" id="k6">
+<h2>6 · SELECT – Grundlagen der Abfrage</h2>
+<p class="lead">Präsentation SQL 02 + Lehrbuch LF5 S. 615–617.</p>
+<h3>Das Gerüst jeder Abfrage</h3>
+<pre class="code">SELECT  spalten          -- WAS will ich sehen (welche Spalten)
+FROM    tabelle          -- WOHER
+WHERE   bedingung        -- WELCHE Zeilen (Filter)
+ORDER BY spalte;         -- in welcher REIHENFOLGE</pre>
+<div class="box analog">SELECT ist wie eine Bestellung in der Bibliothek: „Ich will <b>Titel und Autoren</b> (SELECT) aus dem <b>Romankatalog</b> (FROM), nur die <b>nach dem Jahr 2000</b> (WHERE), <b>alphabetisch</b> (ORDER BY).“</div>
+
+<h3>Alle oder ausgewählte Spalten</h3>
+<div class="demo" data-db="park">SELECT * FROM Attraktion;</div>
+<div class="demo" data-db="park">SELECT Name, Kategorie FROM Attraktion;</div>
+<div class="ex" data-id="s1"></div>
+<div class="ex" data-id="s2"></div>
+
+<h3>DISTINCT – ohne Duplikate</h3>
+<div class="demo" data-db="park">SELECT DISTINCT Tickettyp FROM Tickets;</div>
+<div class="ex" data-id="s3"></div>
+
+<h3>AS – Alias (Umbenennen)</h3>
+<p>Ein Spalten-Alias ändert nur die Überschrift im Ergebnis. Ein Tabellen-Alias (<code>FROM Besucher b</code>) ist eine Abkürzung, die du bei JOINs brauchst.</p>
+<div class="demo" data-db="park">SELECT Vorname AS Name, `Alter` AS Jahre FROM Besucher b;</div>
+<div class="ex" data-id="s7"></div>
+
+<h3>ORDER BY – Sortieren</h3>
+<p>Standard ist <b>ASC</b> (aufsteigend, A→Z, 1→9). Absteigend mit <b>DESC</b>. Mehrere Spalten: Die zweite entscheidet, wenn die erste gleich ist.</p>
+<div class="demo" data-db="park">SELECT Name, Preis FROM Snacks ORDER BY Preis DESC;</div>
+<div class="ex" data-id="s4"></div>
+<div class="ex" data-id="s5"></div>
+
+<h3>LIMIT – nur die ersten N Zeilen</h3>
+<p><code>LIMIT 3</code> = die ersten 3. <code>LIMIT 3 OFFSET 10</code> = 3 Zeilen ab der 11. Zeile. (MS SQL Server verwendet stattdessen TOP.)</p>
+<div class="ex" data-id="s6"></div>
+
+<h3>Rechnen in der Abfrage</h3>
+<div class="demo" data-db="park">SELECT Name, Preis, Preis * 1.19 AS Brutto FROM Snacks;</div>
+<div class="box merk">SELECT wählt die Spalten, FROM die Tabelle(n), WHERE filtert die Datensätze, ORDER BY sortiert (ASC aufsteigend = Standard, DESC absteigend). DISTINCT entfernt doppelte Werte.</div>
+</section>
+
+<!-- ================= K7 ================= -->
+<section class="ch" id="k7">
+<h2>7 · WHERE – Bedingungen</h2>
+<p class="lead">Präsentation SQL 03 + Lehrbuch LF5 S. 617.</p>
+<h3>Vergleichsoperatoren</h3>
+<table class="t"><tr><th>Operator</th><th>Bedeutung</th><th>Beispiel</th></tr>
+<tr><td>=</td><td>gleich</td><td><code>Tickettyp = 'Kinder'</code></td></tr>
+<tr><td>&lt;&gt; oder !=</td><td>ungleich</td><td><code>Status &lt;&gt; 'geöffnet'</code></td></tr>
+<tr><td>&lt; &gt; &lt;= &gt;=</td><td>kleiner, größer, …</td><td><code>`Alter` &gt;= 18</code></td></tr></table>
+<div class="ex" data-id="w1"></div>
+<div class="ex" data-id="w2"></div>
+
+<h3>AND, OR, NOT und Klammern</h3>
+<p><b>AND</b> = beide Bedingungen müssen gelten. <b>OR</b> = eine reicht. <b>NOT</b> = Verneinung.</p>
+<div class="box trap"><b>AND hat Vorrang vor OR</b> (wie Punkt vor Strich). <code>A AND B OR C</code> wird gelesen als <code>(A AND B) OR C</code>. Wenn du „A und zugleich (B oder C)“ meinst, <b>musst</b> du Klammern setzen: <code>A AND (B OR C)</code>.</div>
+<div class="ex" data-id="w7"></div>
+<div class="ex" data-id="w8"></div>
+
+<h3>BETWEEN – Bereich (inklusive Grenzen)</h3>
+<p><code>WHERE `Alter` BETWEEN 10 AND 30</code> ist dasselbe wie <code>`Alter` &gt;= 10 AND `Alter` &lt;= 30</code>.</p>
+<div class="ex" data-id="w3"></div>
+<div class="ex" data-id="w9"></div>
+
+<h3>IN / NOT IN – Aufzählung</h3>
+<p>Statt <code>X = 'a' OR X = 'b' OR X = 'c'</code> → <code>X IN ('a','b','c')</code>. Das Gegenteil ist <code>NOT IN</code> (Achtung: auf der Folie steht fälschlich „NOTIN“ zusammen).</p>
+<div class="ex" data-id="w4"></div>
+
+<h3>LIKE – Suche nach Muster</h3>
+<table class="t"><tr><th>Muster</th><th>Bedeutet</th><th>Trifft</th></tr>
+<tr><td><code>'A%'</code></td><td>beginnt mit A</td><td>Achterbahn</td></tr>
+<tr><td><code>'%e'</code></td><td>endet mit e</td><td>Limonade</td></tr>
+<tr><td><code>'%o%'</code></td><td>enthält o (irgendwo)</td><td>Popcorn, Limonade, Schokoapfel</td></tr>
+<tr><td><code>'_a%'</code></td><td>2. Zeichen ist a</td><td>Max, Paul</td></tr>
+<tr><td><code>'O_O'</code></td><td>3 Zeichen: O, beliebig, O</td><td>OTO</td></tr></table>
+<p><b>%</b> = beliebig viele Zeichen (auch null). <b>_</b> = genau ein Zeichen. Das Muster steht immer in Anführungszeichen – auf der Folie fehlen sie bei <code>LIKE SCH%</code>, das ist ein Fehler.</p>
+<div class="ex" data-id="w5"></div>
+<div class="ex" data-id="w6"></div>
+
+<h3>IS NULL – leere Werte</h3>
+<div class="box trap"><code>WHERE Rueckgabedatum = NULL</code> <b>liefert nie etwas</b> und meldet nicht einmal einen Fehler! NULL ist kein Wert, mit dem man vergleichen kann. Richtig: <code>IS NULL</code> / <code>IS NOT NULL</code>.</div>
+<div class="ex" data-id="w11"></div>
+
+<h3>Kombination – wie in der Klausur</h3>
+<div class="ex" data-id="w10"></div>
+<div class="box merk">Im WHERE-Teil werden Bedingungen mit Vergleichsoperatoren (=, &lt;&gt;, &lt;, &gt;) formuliert und mit AND, OR, NOT verknüpft. Mit LIKE wird nach Mustern gesucht: % steht für beliebig viele Zeichen, _ für genau ein Zeichen.</div>
+</section>
+
+<!-- ================= K8 ================= -->
+<section class="ch" id="k8">
+<h2>8 · Aggregatfunktionen, GROUP BY, HAVING und Textfunktionen</h2>
+<p class="lead">Präsentation SQL 04 + Lehrbuch LF5 S. 618–620.</p>
+<h3>Aggregatfunktionen (<span class="de">Spaltenfunktionen</span>)</h3>
+<p>Sie nehmen <b>viele Zeilen</b> und machen daraus <b>eine Zahl</b>.</p>
+<table class="t"><tr><th>Funktion</th><th>Was sie macht</th><th>Achtung</th></tr>
+<tr><td>COUNT(*)</td><td>Anzahl der Zeilen</td><td>zählt alle Zeilen</td></tr>
+<tr><td>COUNT(spalte)</td><td>Anzahl der Werte, die <b>nicht NULL</b> sind</td><td>NULL wird nicht gezählt!</td></tr>
+<tr><td>COUNT(DISTINCT sp)</td><td>Anzahl der <b>verschiedenen</b> Werte</td><td></td></tr>
+<tr><td>SUM(sp)</td><td>Summe</td><td>nur Zahlen</td></tr>
+<tr><td>AVG(sp)</td><td>Durchschnitt</td><td>nur Zahlen</td></tr>
+<tr><td>MIN(sp) / MAX(sp)</td><td>kleinster / größter Wert</td><td>liefert nur den Wert, nicht die ganze Zeile</td></tr></table>
+<div class="demo" data-db="park">SELECT COUNT(*) AS Anzahl, SUM(Preis) AS Summe, AVG(Preis) AS Schnitt, MIN(Preis), MAX(Preis) FROM Snacks;</div>
+<div class="ex" data-id="a1"></div>
+<div class="ex" data-id="a2"></div>
+<div class="ex" data-id="a3"></div>
+<div class="ex" data-id="a4"></div>
+
+<h3>GROUP BY – ein Ergebnis pro Gruppe</h3>
+<p>Ohne GROUP BY bekommst du eine Zahl für die ganze Tabelle. Mit GROUP BY bekommst du <b>eine Zahl pro Gruppe</b>.</p>
+<div class="box analog">Ein Stapel Tickets auf dem Tisch. <code>COUNT(*)</code> = „Wie viele Tickets sind es?“ → 8. <code>GROUP BY Tickettyp</code> = „Sortiere sie nach Typ in Häufchen und sag bei jedem Häufchen, wie viele es sind“ → Erwachsene 3, Kinder 3, Jugendliche 1, Senioren 1.</div>
+<div class="demo" data-db="park">SELECT Tickettyp, COUNT(*) AS Anzahl
+FROM Tickets
+GROUP BY Tickettyp;</div>
+<div class="box trap"><b>Goldene Regel:</b> Jede Spalte im SELECT, die <b>nicht</b> in einer Aggregatfunktion steht, <b>muss</b> auch im GROUP BY stehen. <code>SELECT Tickettyp, Preis, COUNT(*) … GROUP BY Tickettyp</code> ist ein Fehler (MariaDB lässt es manchmal durch, aber das Ergebnis ist zufällig).</div>
+<div class="ex" data-id="a5"></div>
+<div class="ex" data-id="a6"></div>
+<div class="ex" data-id="a8"></div>
+<div class="ex" data-id="a11"></div>
+
+<h3>HAVING – Filter auf Gruppen</h3>
+<table class="t"><tr><th></th><th>WHERE</th><th>HAVING</th></tr>
+<tr><td>Wann wird gefiltert</td><td><b>vor</b> dem Gruppieren</td><td><b>nach</b> dem Gruppieren</td></tr>
+<tr><td>Was wird gefiltert</td><td>einzelne Zeilen</td><td>ganze Gruppen</td></tr>
+<tr><td>Aggregatfunktionen?</td><td>NEIN</td><td>JA (COUNT(*) &gt; 2)</td></tr></table>
+<pre class="code">SELECT … FROM … WHERE … GROUP BY … HAVING … ORDER BY … LIMIT …;</pre>
+<div class="box tip">Die Reihenfolge der Klauseln merkst du dir mit dem Satz: <b>„S</b>ofie <b>F</b>ährt <b>W</b>ilde <b>G</b>eisterbahn, <b>H</b>at <b>O</b>ft <b>L</b>ust.“ → SELECT FROM WHERE GROUP BY HAVING ORDER BY LIMIT.</div>
+<div class="ex" data-id="a7"></div>
+
+<h3>Text- und Datumsfunktionen</h3>
+<table class="t"><tr><th>Funktion</th><th>Ergebnis</th></tr>
+<tr><td><code>CONCAT(Vorname, ' ', Nachname)</code></td><td>Lena Schmidt (verbindet Texte)</td></tr>
+<tr><td><code>TRIM(text)</code></td><td>entfernt Leerzeichen am Anfang/Ende</td></tr>
+<tr><td><code>SUBSTRING(Vorname FROM 1 FOR 1)</code></td><td>L (ab dem 1. Zeichen, Länge 1)</td></tr>
+<tr><td><code>LEFT(text, 3)</code> / <code>RIGHT(text, 2)</code></td><td>erste 3 / letzte 2 Zeichen (mehr in Kapitel 8b)</td></tr>
+<tr><td><code>ROUND(x, 2)</code></td><td>auf 2 Stellen runden</td></tr>
+<tr><td><code>CURDATE()</code>, <code>NOW()</code></td><td>heutiges Datum / Datum + Uhrzeit</td></tr>
+<tr><td><code>YEAR(d)</code>, <code>MONTH(d)</code>, <code>DAY(d)</code></td><td>Teil des Datums</td></tr>
+<tr><td><code>DATEDIFF(d1, d2)</code></td><td>Unterschied in Tagen</td></tr></table>
+<div class="ex" data-id="a9"></div>
+<div class="ex" data-id="a10"></div>
+<div class="ex" data-id="a12"></div>
+<div class="box merk">Mit GROUP BY werden Datensätze mit gleichem Wert zu Gruppen zusammengefasst; Aggregatfunktionen (COUNT, SUM, AVG, MIN, MAX) werden dann pro Gruppe berechnet. Mit HAVING werden Gruppen gefiltert, mit WHERE einzelne Datensätze vor der Gruppierung.</div>
+</section>
+
+<!-- ================= K8b ================= -->
+<section class="ch" id="k8b">
+<h2>8b · Funktionen aus dem IHK-Spickzettel (<span class="de">SQL-Syntax Auszug</span>)</h2>
+<p class="lead">Alles von Seite 39 deines Spickzettels „SQL-Syntax (Auszug)“ – dieses Blatt bekommst du wahrscheinlich in der IHK-Prüfung. Funktionen schreibt man in SELECT, WHERE, GROUP BY und ORDER BY.</p>
+
+<div class="box trap"><b>IHK-Spickzettel ≠ MariaDB.</b> Der Spickzettel ist allgemein und verwendet bei manchen Funktionen (DATEADD, DATEDIFF) die Schreibweise von <b>Microsoft SQL Server</b>. In der Klausur auf Papier schreibst du so, wie es die Aufgabe oder der Spickzettel verlangt. In der Sandbox hier funktionieren <b>beide Schreibweisen</b>, du kannst also beides ausprobieren. Die Unterschiede stehen in der Tabelle unten.</div>
+
+<h3>Textfunktionen: LEFT und RIGHT</h3>
+<table class="t">
+<tr><th>Schreibweise</th><th>Was sie liefert</th><th>Beispiel</th></tr>
+<tr><td><code>LEFT(Zeichenkette, Anzahl)</code></td><td>die ersten <i>Anzahl</i> Zeichen <b>von links</b></td><td><code>LEFT('Riesenrad', 5)</code> → <code>Riese</code></td></tr>
+<tr><td><code>RIGHT(Zeichenkette, Anzahl)</code></td><td>die letzten <i>Anzahl</i> Zeichen <b>von rechts</b></td><td><code>RIGHT('Riesenrad', 3)</code> → <code>rad</code></td></tr>
+</table>
+<div class="box analog">Stell dir den Namen als Reihe von Buchstaben auf Papier vor. LEFT(…, 3) = du schneidest mit der Schere die ersten 3 Buchstaben von links ab. RIGHT(…, 3) = die letzten 3 von rechts.</div>
+<div class="box trap">Verwechsle nicht <b>LEFT(text, n)</b> (Funktion für Text) und <b>LEFT JOIN</b> (Verknüpfung von Tabellen, Kapitel 9). Sie haben nur dasselbe Wort.</div>
+<div class="demo" data-db="park">SELECT Name, LEFT(Name, 3) AS Links, RIGHT(Name, 3) AS Rechts FROM Attraktion;</div>
+<div class="ex" data-id="f1"></div>
+<div class="ex" data-id="f2"></div>
+<div class="ex" data-id="f3"></div>
+
+<h3>Datum und Uhrzeit: YEAR, MONTH, DAY, WEEKDAY, HOUR, MINUTE, NOW</h3>
+<table class="t">
+<tr><th>Funktion</th><th>Liefert</th><th>Beispiel → Ergebnis</th></tr>
+<tr><td><code>NOW()</code></td><td>jetzt: Datum + Uhrzeit</td><td>z. B. <code>2026-11-16 14:05:00</code></td></tr>
+<tr><td><code>YEAR(d)</code> / <code>MONTH(d)</code> / <code>DAY(d)</code></td><td>Jahr / Monat / Tag als Zahl</td><td><code>MONTH('2026-11-08')</code> → 11</td></tr>
+<tr><td><code>WEEKDAY(d)</code></td><td>Wochentag als Zahl, <b>Montag = 0</b> … Sonntag = 6</td><td><code>WEEKDAY('2026-11-08')</code> → 6 (Sonntag)</td></tr>
+<tr><td><code>HOUR(t)</code> / <code>MINUTE(t)</code></td><td>Stunde / Minute</td><td><code>HOUR('14:25:00')</code> → 14</td></tr>
+</table>
+<div class="box trap"><b>WEEKDAY beginnt bei null.</b> Montag = 0, nicht 1. Eine typische Fangfrage.</div>
+<div class="demo" data-db="park">SELECT Datum, YEAR(Datum), MONTH(Datum), DAY(Datum), WEEKDAY(Datum) FROM Verkauf;</div>
+<p>Eine Funktion kannst du auch ins <b>GROUP BY</b> schreiben – z. B. „wie viele Besuche gab es in jeder Stunde“:</p>
+<div class="demo" data-db="park">SELECT HOUR(Uhrzeit) AS Stunde, COUNT(*) AS Anzahl
+FROM Besuche
+GROUP BY HOUR(Uhrzeit);</div>
+<div class="ex" data-id="f4"></div>
+<div class="ex" data-id="f5"></div>
+<div class="ex" data-id="f6"></div>
+<div class="ex" data-id="f7"></div>
+<div class="ex" data-id="f8"></div>
+
+<h3>Rechnen mit Datum: DATEDIFF und DATEADD</h3>
+<p><b>Datumsteil</b> = die Einheit, in der du rechnest: <code>DAY, MONTH, YEAR, HOUR, MINUTE</code>.</p>
+<table class="t">
+<tr><th>Was</th><th>IHK-Spickzettel (= SQL Server)</th><th>MariaDB</th></tr>
+<tr><td>Differenz zweier Daten</td><td><code>DATEDIFF(DAY, Start, Ende)</code><br>→ Ende − Start, in der Einheit</td><td><code>DATEDIFF(Ende, Start)</code><br>→ immer in Tagen, <b>umgekehrte Reihenfolge</b>, ohne Einheit</td></tr>
+<tr><td>Zu einem Datum addieren</td><td><code>DATEADD(DAY, 14, Datum)</code></td><td><code>DATE_ADD(Datum, INTERVAL 14 DAY)</code></td></tr>
+</table>
+<div class="box analog">DATEDIFF ist wie auf dem Kalender zählen, wie viele Tage zwischen zwei Kreisen liegen. DATEADD ist wie auf dem Kalender 14 Tage weiterzählen und dieses Datum aufschreiben.</div>
+<div class="demo" data-db="bib">SELECT Ausleihe_ID, Ausleihdatum, Rueckgabedatum,
+       DATEDIFF(DAY, Ausleihdatum, Rueckgabedatum) AS Tage_IHK,
+       DATEDIFF(Rueckgabedatum, Ausleihdatum)      AS Tage_MariaDB
+FROM Ausleihe
+WHERE Rueckgabedatum IS NOT NULL;</div>
+<div class="ex" data-id="f9"></div>
+<div class="ex" data-id="f10"></div>
+
+<h3>Statistik: STDDEV, VARIANCE, CORR</h3>
+<p>Das sind Aggregatfunktionen wie AVG – aus vielen Werten wird eine Zahl.</p>
+<table class="t">
+<tr><th>Funktion</th><th>Name</th><th>Bedeutung</th></tr>
+<tr><td><code>STDDEV(sp)</code></td><td><span class="de">Standardabweichung</span></td><td>wie stark die Werte <b>typischerweise</b> vom Durchschnitt abweichen</td></tr>
+<tr><td><code>VARIANCE(sp)</code></td><td><span class="de">Varianz</span></td><td>Abweichung zum Quadrat (STDDEV = Wurzel aus VARIANCE)</td></tr>
+<tr><td><code>CORR(sp1, sp2)</code></td><td><span class="de">Korrelation</span></td><td>wie stark zwei Werte zusammenhängen: 1 = vollständig (100 %), 0 = gar nicht</td></tr>
+</table>
+<div class="box analog">Zwei Klassen haben einen Notendurchschnitt von 3. In der ersten haben alle eine 3 → Abweichung 0. In der zweiten gibt es nur Einsen und Fünfen → große Abweichung. Der Durchschnitt ist gleich, aber die Abweichung zeigt, wie „verstreut“ die Werte sind.</div>
+<div class="ex" data-id="f11"></div>
+<div class="box tip">CORR gibt es in MariaDB eigentlich <b>nicht</b> (nur in Oracle und PostgreSQL). Es steht aber auf dem Spickzettel, also kenne zumindest die Bedeutung. In der Sandbox funktioniert es: <code>SELECT CORR(Preis, Jahr) FROM Buch;</code> (DB Bibliothek) → etwa 0,17, also hängen Preis und Erscheinungsjahr kaum zusammen.</div>
+
+<h3>Operatoren vom Spickzettel</h3>
+<p><code>UNION</code> hängt die Ergebnisse zweier Abfragen untereinander (Duplikate fallen weg). Rechnen: <code>*</code> Multiplikation, <code>/</code> Division, <code>+</code>, <code>-</code>. Die anderen (<code>AND, OR, NOT, IS NULL, LIKE, =, &lt;&gt;</code> …) kennst du aus Kapitel 7.</p>
+<div class="demo" data-db="park">SELECT Vorname AS Name FROM Besucher
+UNION
+SELECT Name FROM Snacks;</div>
+<div class="box merk">LEFT(Zeichenkette, Anzahl) liefert Zeichen von links, RIGHT von rechts. WEEKDAY liefert den Wochentag als Zahl, wobei Montag = 0 ist. DATEDIFF berechnet die Differenz zwischen zwei Datumsangaben, DATEADD addiert ein Intervall zu einem Datum.</div>
+</section>
+
+<!-- ================= K9 ================= -->
+<section class="ch" id="k9">
+<h2>9 · JOIN – Tabellen verknüpfen</h2>
+<p class="lead">Präsentation SQL 06 + Lehrbuch LF5 S. 619, LF8 S. 281–283. <b>Das wichtigste Kapitel für die Klausur</b> – Missionen 1, 2, 3, 6, 9, 12 = 48 Punkte.</p>
+
+<h3>Warum JOIN</h3>
+<p>Die Tabelle Tickets kennt nur <code>Besucher_ID = 3</code>. Der Name „Sophie“ steht in der Tabelle Besucher. Wenn du „Ticket + Name“ sehen willst, musst du die Tabellen <b>über die Schlüssel verknüpfen</b>.</p>
+
+<h3>CROSS JOIN – jeder mit jedem</h3>
+<div class="demo" data-db="park">SELECT b.Vorname, s.Name FROM Besucher b CROSS JOIN Snacks s;</div>
+<p>8 Besucher × 6 Snacks = <b>48 Zeilen</b> – das <span class="de">kartesische Produkt</span>. Die meisten Kombinationen sind sinnlos. Auf der Folie: 28 Mitarbeiter × 14 Autos = 392.</p>
+<div class="ex" data-id="j9"></div>
+
+<h3>INNER JOIN … ON – nur Paare, die zusammengehören</h3>
+<pre class="code">SELECT  t.Tickettyp, b.Vorname
+FROM    Tickets t
+JOIN    Besucher b ON t.Besucher_ID = b.Besucher_ID;
+--                    FK (Tickets)  =  PK (Besucher)</pre>
+<div class="box analog">CROSS JOIN = du legst alle Tickets und alle Menschen nebeneinander und bildest <b>alle</b> Paare. ON = die Regel „lass ein Paar nur stehen, wenn die Nummer auf dem Ticket = die Nummer des Menschen ist“. Übrig bleiben nur die richtigen Paare.</div>
+<ul>
+<li><code>JOIN</code> = <code>INNER JOIN</code> (dasselbe).</li>
+<li>Im ON steht <b>fast immer FK = PK</b>. Schau ins Schema, wo die Linie verläuft.</li>
+<li>Die Aliasse <code>t</code>, <code>b</code>: kürzer und <b>notwendig</b>, wenn derselbe Spaltenname in beiden Tabellen vorkommt (Besucher_ID) – sonst „ambiguous column“.</li>
+<li>Die alte Variante ohne JOIN (gilt auch): <code>FROM Tickets t, Besucher b WHERE t.Besucher_ID = b.Besucher_ID</code></li>
+</ul>
+<div class="ex" data-id="j1"></div>
+<div class="ex" data-id="j2"></div>
+
+<h3>3 Tabellen – der Weg über die Zwischentabelle</h3>
+<p>Wer war auf welcher Attraktion? Besucher und Attraktion haben keine <b>direkte</b> Linie. Verbunden sind sie über <b>Besuche</b>. Vorgehen:</p>
+<ol class="steps">
+<li>Finde im Diagramm den <b>Weg</b>: Besucher → Besuche → Attraktion.</li>
+<li>Jede Linie auf dem Weg = ein JOIN mit ON (FK = PK).</li>
+<li>Erst dann Spalten und Bedingungen auswählen.</li>
+</ol>
+<div data-erd="park"></div>
+<div class="demo" data-db="park">SELECT br.Vorname, a.Name, b.Uhrzeit
+FROM Besucher br
+JOIN Besuche b    ON b.Besucher_ID   = br.Besucher_ID
+JOIN Attraktion a ON a.Attraktion_ID = b.Attraktion_ID;</div>
+<div class="ex" data-id="j3"></div>
+<div class="ex" data-id="j4"></div>
+<div class="ex" data-id="j5"></div>
+<div class="ex" data-id="j8"></div>
+<div class="ex" data-id="j10"></div>
+
+<h3>LEFT, RIGHT, FULL JOIN</h3>
+<div class="venns">
+<div class="venn"><svg viewBox="0 0 120 76"><defs><clipPath id="cA"><circle cx="48" cy="38" r="30"/></clipPath></defs><circle cx="72" cy="38" r="30" class="f" clip-path="url(#cA)"/><circle cx="48" cy="38" r="30"/><circle cx="72" cy="38" r="30"/></svg>INNER JOIN<br><span class="muted">nur Treffer</span></div>
+<div class="venn"><svg viewBox="0 0 120 76"><circle cx="48" cy="38" r="30" class="f"/><circle cx="48" cy="38" r="30"/><circle cx="72" cy="38" r="30"/></svg>LEFT JOIN<br><span class="muted">alles links + Treffer</span></div>
+<div class="venn"><svg viewBox="0 0 120 76"><circle cx="72" cy="38" r="30" class="f"/><circle cx="48" cy="38" r="30"/><circle cx="72" cy="38" r="30"/></svg>RIGHT JOIN<br><span class="muted">alles rechts + Treffer</span></div>
+<div class="venn"><svg viewBox="0 0 120 76"><circle cx="48" cy="38" r="30" class="f"/><circle cx="72" cy="38" r="30" class="f"/><circle cx="48" cy="38" r="30"/><circle cx="72" cy="38" r="30"/></svg>FULL JOIN<br><span class="muted">alles aus beiden</span></div>
+</div>
+<p><b>LEFT JOIN</b>: alle Zeilen der <b>linken</b> Tabelle (der nach FROM), auch wenn sie rechts keinen Partner haben – dort wird <b>NULL</b> eingesetzt. So findest du, „was fehlt“:</p>
+<div class="demo" data-db="park">SELECT a.Name, b.Besuche_ID
+FROM Attraktion a
+LEFT JOIN Besuche b ON b.Attraktion_ID = a.Attraktion_ID;</div>
+<p>Das Geisterhaus hat Besuche_ID = NULL → niemand war dort. Mit INNER JOIN wäre das Geisterhaus gar nicht zu sehen.</p>
+<div class="ex" data-id="j6"></div>
+<div class="ex" data-id="j7"></div>
+<p><b>RIGHT JOIN</b> = spiegelverkehrt. <b>FULL JOIN</b> gibt es in MariaDB/MySQL nicht direkt – man setzt ihn zusammen: <code>… LEFT JOIN … UNION … RIGHT JOIN …</code> (UNION hängt die Ergebnisse zweier Abfragen untereinander und entfernt Duplikate).</p>
+<div class="box trap">In der Zusammenfassung von Präsentation 06 steht „INNER JOIN verknüpft Tabellen automatisch über gleichnamige Spalten“. Das ist der <b>NATURAL JOIN</b>, nicht INNER JOIN. INNER JOIN braucht ON mit einer Bedingung. In der Klausur schreibst du immer <code>JOIN … ON …</code>.</div>
+<div class="box merk">INNER JOIN liefert nur Datensätze, die in beiden Tabellen eine Übereinstimmung (Primärschlüssel = Fremdschlüssel) haben. LEFT JOIN liefert alle Datensätze der linken Tabelle; fehlende Werte der rechten Tabelle werden mit NULL aufgefüllt. CROSS JOIN liefert das kartesische Produkt.</div>
+</section>
+
+<!-- ================= K10 ================= -->
+<section class="ch" id="k10">
+<h2>10 · Unterabfragen (<span class="de">Subqueries</span>)</h2>
+<p class="lead">Präsentation SQL 05 + Lehrbuch LF8 S. 284–285.</p>
+<h3>Prinzip</h3>
+<p>Eine Abfrage in einer Abfrage. <b>Die innere wird zuerst ausgewertet</b>, und ihr Ergebnis verwendet die äußere.</p>
+<div class="box analog">„Welche Snacks sind teurer als der Durchschnitt?“ – den Durchschnitt kennst du nicht. Also fragst du zuerst „wie hoch ist der Durchschnitt?“ (3,85 €) und dann „welche sind teurer als 3,85?“. Die Unterabfrage macht beide Schritte auf einmal.</div>
+<div class="demo" data-db="park">SELECT AVG(Preis) FROM Snacks;</div>
+<div class="demo" data-db="park">SELECT Name, Preis FROM Snacks
+WHERE Preis > (SELECT AVG(Preis) FROM Snacks);</div>
+<div class="ex" data-id="u1"></div>
+<div class="ex" data-id="u2"></div>
+<div class="ex" data-id="u3"></div>
+
+<h3>Ein Wert oder eine Liste von Werten</h3>
+<table class="t"><tr><th>Die Unterabfrage liefert</th><th>Operator</th></tr>
+<tr><td>1 Wert (AVG, MAX, ID einer Sache)</td><td><code>=  &lt;  &gt;</code> …</td></tr>
+<tr><td>mehrere Werte (Liste von IDs)</td><td><code>IN</code>, <code>NOT IN</code>, <code>ANY</code>, <code>ALL</code></td></tr>
+<tr><td>„gibt es mindestens eine Zeile?“</td><td><code>EXISTS</code>, <code>NOT EXISTS</code></td></tr></table>
+<div class="ex" data-id="u4"></div>
+<div class="ex" data-id="u5"></div>
+<div class="ex" data-id="u6"></div>
+<div class="box trap">Regeln aus dem Buch: 1) Unterabfrage immer in <b>runden Klammern</b>; 2) ein Wert → Vergleichsoperatoren; 3) mehrere Werte → Mengenoperatoren (IN …); 4) <b>ORDER BY und UNION nicht in der Unterabfrage</b>. Unterabfragen <b>dürfen</b> verschachtelt werden.</div>
+
+<h3>Unterabfrage im FROM – die „Zwischentabelle“</h3>
+<p>Das steht auf der ersten Seite deines IHK-Spickzettels: <code>SELECT … FROM (SELECT … FROM … WHERE …) AS tbl WHERE …</code>. Das Ergebnis der inneren Abfrage verhält sich wie eine <b>vorübergehende Tabelle</b> mit dem Namen <code>tbl</code>, aus der dann weiter ausgewählt wird.</p>
+<div class="box analog">Zuerst schreibst du dir ein Zwischenergebnis auf einen Zettel (z. B. „wie viele Besuche hatte jeder Besucher“). Dann rechnest du mit dem Zettel weiter („wie hoch ist der Durchschnitt dieser Zahlen“). Die Unterabfrage im FROM ist dieser Zettel mit dem Zwischenergebnis.</div>
+<p><b>Wann du sie brauchst:</b> wenn du eine Aggregation aus einer Aggregation willst. <code>AVG(COUNT(*))</code> erlaubt SQL <b>nicht</b>. Du musst zuerst COUNT pro Gruppe berechnen (Zwischentabelle) und daraus dann AVG.</p>
+<div class="demo" data-db="park">-- Schritt 1: Zwischentabelle (allein ausführen)
+SELECT Besucher_ID, COUNT(*) AS Anzahl FROM Besuche GROUP BY Besucher_ID;</div>
+<div class="demo" data-db="park">-- Schritt 2: Durchschnitt aus der Zwischentabelle
+SELECT AVG(Anzahl) AS Durchschnitt
+FROM (SELECT Besucher_ID, COUNT(*) AS Anzahl
+      FROM Besuche
+      GROUP BY Besucher_ID) AS tbl;</div>
+<div class="box trap">In MariaDB muss eine Unterabfrage im FROM einen <b>Alias</b> haben (<code>AS tbl</code>), sonst kommt der Fehler „Every derived table must have its own alias“. Und Spalten innen, mit denen du außen rechnen willst (COUNT(*) …), benennst du mit einem Alias (<code>AS Anzahl</code>), damit du außen darauf verweisen kannst.</div>
+<div class="ex" data-id="u8"></div>
+<div class="ex" data-id="u9"></div>
+<div class="ex" data-id="u10"></div>
+
+<h3>Unterabfragen in INSERT und CREATE TABLE</h3>
+<pre class="code">INSERT INTO Archiv (Datum, Menge) SELECT Datum, Menge FROM Verkauf WHERE Datum < '2026-11-09';
+CREATE TABLE Snacks_Kopie AS SELECT * FROM Snacks;   -- Kopie mit Daten (ohne PK/FK!)</pre>
+<div class="ex" data-id="u7"></div>
+<div class="box merk">Eine Unterabfrage ist eine SELECT-Abfrage innerhalb einer anderen SQL-Anweisung und steht in runden Klammern. Liefert sie genau einen Wert, verwendet man Vergleichsoperatoren (=, &lt;, &gt;); liefert sie mehrere Werte, Mengenoperatoren wie IN, ANY, ALL oder EXISTS.</div>
+</section>
+
+<!-- ================= K11 ================= -->
+<section class="ch" id="k11">
+<h2>11 · Benutzer und Rechte (<span class="de">Account Management, Berechtigungen</span>)</h2>
+<p class="lead">Präsentation SQL 07 + Lehrbuch LF8 S. 287. DCL-Befehle. In der Sandbox (SQLite) funktionieren sie nicht – hier übst du auf Papier.</p>
+<h3>Warum</h3>
+<table class="t"><tr><th>Grund</th><th>Bedeutet</th></tr>
+<tr><td><span class="de">Authentifizierung</span></td><td>anmelden darf sich nur ein registrierter Benutzer mit Passwort – <b>WER bist du</b></td></tr>
+<tr><td><span class="de">Autorisierung</span></td><td>genau festgelegt, was er darf (SELECT, UPDATE …) – <b>WAS darfst du</b></td></tr>
+<tr><td><span class="de">Trennung von Zuständigkeiten</span></td><td>eigene Konten für Admin, Entwickler, Anwendung, Reporting</td></tr>
+<tr><td><span class="de">Least-Privilege-Prinzip</span></td><td>jeder bekommt nur die Rechte, die er wirklich braucht</td></tr>
+<tr><td>Rollen</td><td>ein Paket von Rechten, das man mehreren Personen auf einmal gibt (ab MariaDB 10.0.5)</td></tr></table>
+<div class="box analog">Hotel: <b>CREATE USER</b> = du stellst eine Gästekarte aus. <b>GRANT</b> = du speicherst auf der Karte, welche Türen sie öffnet (Zimmer, Fitnessraum). <b>REVOKE</b> = du löschst den Fitnessraum von der Karte. <b>WITH GRANT OPTION</b> = der Gast darf selbst Karten für andere ausstellen.</div>
+
+<h3>Benutzer = Name @ Host</h3>
+<pre class="code">CREATE USER 'kasse'@'localhost' IDENTIFIED BY 'Geheim123';      -- anlegen
+ALTER USER  'kasse'@'localhost' IDENTIFIED BY 'NeuesPW456';     -- Passwort ändern
+RENAME USER 'kasse'@'localhost' TO 'kasse1'@'localhost';        -- umbenennen
+DROP USER IF EXISTS 'kasse1'@'localhost';                       -- löschen</pre>
+<table class="t"><tr><th>Host</th><th>Von wo man sich anmelden darf</th></tr>
+<tr><td><code>'localhost'</code></td><td>nur vom selben Rechner, auf dem die DB läuft</td></tr>
+<tr><td><code>'%'</code></td><td>von überall (Platzhalter)</td></tr>
+<tr><td><code>'192.168.%'</code></td><td>aus dem ganzen Netz 192.168.x.x</td></tr>
+<tr><td><code>'192.168.10.0/255.255.255.0'</code></td><td>aus einem Netz mit Maske (hier hilft dir Subnetting 😉)</td></tr></table>
+
+<h3>GRANT – Rechte vergeben</h3>
+<pre class="code">GRANT  rechte  ON  datenbank.tabelle  TO  'benutzer'@'host'  [WITH GRANT OPTION];</pre>
+<table class="t"><tr><th>Ebene</th><th>Schreibweise</th></tr>
+<tr><td>global – alle DBs</td><td><code>*.*</code></td></tr>
+<tr><td>eine Datenbank</td><td><code>freizeitpark.*</code></td></tr>
+<tr><td>eine Tabelle</td><td><code>freizeitpark.Snacks</code></td></tr>
+<tr><td>(+ einzelne Spalten und Prozeduren)</td><td></td></tr></table>
+<p>Rechte: <code>SELECT, INSERT, UPDATE, DELETE, CREATE, DROP, ALL PRIVILEGES</code>.</p>
+<pre class="code">GRANT SELECT ON freizeitpark.* TO 'report'@'%';                           -- nur Lesen der ganzen DB
+GRANT SELECT, INSERT ON freizeitpark.Verkauf TO 'snackstand'@'localhost'; -- Lesen + Verkäufe einfügen
+GRANT ALL PRIVILEGES ON *.* TO 'chef'@'localhost' WITH GRANT OPTION;      -- Admin, darf Rechte weitergeben</pre>
+
+<h3>REVOKE – Rechte entziehen · SHOW GRANTS – anzeigen</h3>
+<pre class="code">REVOKE INSERT ON freizeitpark.Verkauf FROM 'snackstand'@'localhost';
+SHOW GRANTS FOR 'snackstand'@'localhost';</pre>
+<div class="box trap"><b>GRANT … TO</b>, aber <b>REVOKE … FROM</b>. Auf Folie 21 von Präsentation 07 steht fälschlich „REVOKE … TO“ – richtig ist FROM (so steht es auch in der Zusammenfassung auf Folie 23 und im Buch).</div>
+
+<h3>Übung auf Papier</h3>
+<div class="box">1) Lege den Benutzer <b>azubi</b> an, der sich nur lokal anmelden darf, Passwort <b>Start2026</b>.<br>2) Gib ihm das Recht, alle Tabellen der Datenbank <b>freizeitpark</b> zu lesen.<br>3) Gib ihm zusätzlich das Recht, die Tabelle <b>Snacks</b> zu ändern.<br>4) Entziehe ihm das Recht, Snacks zu ändern.<br>5) Zeige seine Rechte an.<br>6) Lösche ihn.</div>
+<button class="reveal-btn ghost small" data-t="dcl-sol">👁 Lösung aufdecken</button>
+<div id="dcl-sol" class="box hidden"><pre>CREATE USER 'azubi'@'localhost' IDENTIFIED BY 'Start2026';
+GRANT SELECT ON freizeitpark.* TO 'azubi'@'localhost';
+GRANT UPDATE ON freizeitpark.Snacks TO 'azubi'@'localhost';
+REVOKE UPDATE ON freizeitpark.Snacks FROM 'azubi'@'localhost';
+SHOW GRANTS FOR 'azubi'@'localhost';
+DROP USER 'azubi'@'localhost';</pre></div>
+<div class="box merk">Benutzer werden mit CREATE USER 'name'@'host' IDENTIFIED BY 'passwort' angelegt. Mit GRANT … ON … TO werden Rechte vergeben, mit REVOKE … ON … FROM entzogen. WITH GRANT OPTION erlaubt dem Benutzer, seine Rechte weiterzugeben.</div>
+</section>
+
+<!-- ================= K12 ================= -->
+<section class="ch" id="k12">
+<h2>12 · Stored Procedures (<span class="de">gespeicherte Prozeduren</span>)</h2>
+<p class="lead">Präsentation SQL 08. Nur MariaDB – auf Papier.</p>
+<p><b>Was das ist:</b> ein benannter Block von SQL-Befehlen, der <b>in der Datenbank</b> gespeichert ist und mit einem einzigen Aufruf <code>CALL</code> ausgeführt wird. Wie eine Methode in Java – mit Namen, Parametern und Rumpf.</p>
+<table class="t"><tr><th>Vorteil</th><th>Warum</th></tr>
+<tr><td><span class="de">Kapselung</span></td><td>wiederkehrende Logik steht an einer Stelle in der DB</td></tr>
+<tr><td><span class="de">Performance</span></td><td>die Befehle sind vorkompiliert</td></tr>
+<tr><td><span class="de">Sicherheit</span></td><td>der Benutzer bekommt das Recht auf die Prozedur, nicht direkt auf die Tabellen</td></tr></table>
+
+<h3>Aufbau</h3>
+<pre class="code">DELIMITER $$                                  -- 1) „Befehlsende“ vorübergehend von ; auf $$ ändern
+CREATE PROCEDURE BesucheVon (                 -- 2) Name
+    IN p_vorname  VARCHAR(50),                -- 3) Parameter (IN = Eingabe)
+    IN p_nachname VARCHAR(50)
+)
+BEGIN                                         -- 4) Rumpf beginnt
+    SELECT a.Name, b.Uhrzeit
+    FROM Besucher br
+    JOIN Besuche b    ON b.Besucher_ID   = br.Besucher_ID
+    JOIN Attraktion a ON a.Attraktion_ID = b.Attraktion_ID
+    WHERE br.Vorname = p_vorname AND br.Nachname = p_nachname;
+END $$                                        -- 5) Rumpf endet, $$ = Ende des ganzen Befehls
+DELIMITER ;                                   -- 6) ; zurücksetzen
+
+CALL BesucheVon('Lina', 'Meyer');             -- Aufruf</pre>
+<div class="box analog"><b>Warum DELIMITER?</b> Im BEGIN…END stehen Semikolons. Der Client (HeidiSQL, Konsole) würde beim ersten <code>;</code> sagen „fertig“ und dem Server nur die halbe Prozedur schicken. DELIMITER $$ sagt ihm: „das Ende kommt erst bei $$“.</div>
+
+<h3>Parameter IN, OUT, INOUT</h3>
+<table class="t"><tr><th>Typ</th><th>Richtung</th><th>Beispiel</th></tr>
+<tr><td>IN (Standard)</td><td>Wert <b>in</b> die Prozedur</td><td>der Name, den ich suche</td></tr>
+<tr><td>OUT</td><td>Wert <b>hinaus</b> (Standard NULL)</td><td>die berechnete Anzahl</td></tr>
+<tr><td>INOUT</td><td>hinein, wird geändert, und hinaus</td><td>Preis → Preis mit Rabatt</td></tr></table>
+<pre class="code">DELIMITER $$
+CREATE PROCEDURE AnzahlBesucher (OUT anzahl INT)
+BEGIN
+    SELECT COUNT(*) INTO anzahl FROM Besucher;
+END $$
+DELIMITER ;
+
+CALL AnzahlBesucher(@n);
+SELECT @n;          -- 8</pre>
+
+<h3>Verwaltung</h3>
+<pre class="code">SHOW PROCEDURE STATUS;                          -- alle Prozeduren auf dem Server
+SHOW PROCEDURE STATUS WHERE db = 'freizeitpark';
+CREATE OR REPLACE PROCEDURE …                   -- grundlegende Änderung (MariaDB)
+ALTER PROCEDURE … [characteristic]              -- nur kleine Eigenschaften
+DROP PROCEDURE IF EXISTS BesucheVon;</pre>
+<div class="box trap">Auf der Folie heißen die Parameter genauso wie die Spalten (<code>IN Vorname</code> + <code>mit.VORNAME = Vorname</code>). Das funktioniert nur dank des Alias <code>mit.</code> – ohne ihn weißt du nicht, ob du die Spalte oder den Parameter meinst. Deshalb das Präfix <code>p_</code>.</div>
+<h3>Übung auf Papier</h3>
+<div class="box">Schreibe eine Prozedur <b>SnacksBis</b> mit dem Parameter <b>p_max</b> (DECIMAL(5,2)), die alle Snacks mit einem Preis bis p_max ausgibt. Rufe sie dann für 4 € auf.</div>
+<button class="reveal-btn ghost small" data-t="proc-sol">👁 Lösung aufdecken</button>
+<div id="proc-sol" class="box hidden"><pre>DELIMITER $$
+CREATE PROCEDURE SnacksBis (IN p_max DECIMAL(5,2))
+BEGIN
+    SELECT Name, Preis FROM Snacks WHERE Preis <= p_max;
+END $$
+DELIMITER ;
+
+CALL SnacksBis(4.00);</pre>Den Kern kannst du in der Sandbox prüfen: <code>SELECT Name, Preis FROM Snacks WHERE Preis &lt;= 4.00;</code></div>
+<div class="box merk">Stored Procedures sind in der Datenbank gespeicherte Anweisungsblöcke, die mit CREATE PROCEDURE name(parameter) BEGIN … END definiert und mit CALL name(parameter) aufgerufen werden. Parameterarten: IN (Eingabe, Standard), OUT (Ausgabe), INOUT (beides).</div>
+</section>
+
+<!-- ================= K13 ================= -->
+<section class="ch" id="k13">
+<h2>13 · Trigger (<span class="de">Auslöser</span>)</h2>
+<p class="lead">Präsentation SQL 09.</p>
+<p><b>Trigger</b> = eine gespeicherte Aktion, die <b>automatisch</b> startet, wenn in einer Tabelle ein INSERT, UPDATE oder DELETE passiert. Niemand ruft ihn auf (kein CALL!).</p>
+<div class="box analog">Bewegungsmelder fürs Licht. Niemand drückt den Schalter – wenn jemand vorbeigeht (= INSERT), geht das Licht von selbst an (= der Trigger schreibt ins Log).</div>
+<table class="t"><tr><th>Vorteil</th><th></th></tr>
+<tr><td><span class="de">Automatisierung</span></td><td>Protokollierung, Berechnungen laufen von selbst</td></tr>
+<tr><td><span class="de">Datenintegrität</span></td><td>die DB erzwingt Regeln, unabhängig von der Anwendung</td></tr>
+<tr><td><span class="de">Konsistenz</span></td><td>eine Änderung in einer Tabelle aktualisiert abhängige automatisch</td></tr>
+<tr><td><span class="de">Zentralisierung der Logik</span></td><td>Logik in der DB, nicht in jeder Anwendung einzeln</td></tr></table>
+
+<h3>Aufbau (MariaDB)</h3>
+<pre class="code">DELIMITER $$
+CREATE TRIGGER nach_verkauf          -- Name
+AFTER INSERT ON Verkauf              -- WANN (BEFORE/AFTER) + WORAUF (INSERT/UPDATE/DELETE) + Tabelle
+FOR EACH ROW                         -- für jede betroffene Zeile
+BEGIN
+    INSERT INTO Verkauf_Log (Verkauf_ID, Aktion, Zeit)
+    VALUES (NEW.Verkauf_ID, 'Neuer Verkauf', NOW());
+END $$
+DELIMITER ;</pre>
+<table class="t"><tr><th></th><th>INSERT</th><th>UPDATE</th><th>DELETE</th></tr>
+<tr><td><code>NEW.spalte</code> – neuer Wert</td><td>✓</td><td>✓</td><td>–</td></tr>
+<tr><td><code>OLD.spalte</code> – alter Wert</td><td>–</td><td>✓</td><td>✓</td></tr></table>
+<p><b>BEFORE</b> eignet sich zum Prüfen/Anpassen der Daten vor dem Speichern (z. B. eine negative Menge korrigieren). <b>AFTER</b> zum Protokollieren.</p>
+<p>Verwaltung: <code>SHOW TRIGGERS;</code> · ändern: <code>CREATE OR REPLACE TRIGGER …</code> · löschen: <code>DROP TRIGGER IF EXISTS nach_verkauf;</code></p>
+<div class="box trap">Folie 13 „Trigger umbenennen“ zeigt <code>EXEC sp_rename …</code> – das ist ein Befehl von <b>Microsoft SQL Server</b>, nicht von MariaDB. In MariaDB benennst du einen Trigger um, indem du ihn löschst und neu anlegst (oder CREATE OR REPLACE mit neuem Namen + DROP des alten).</div>
+<h3>Ausprobieren (SQLite-Schreibweise – ohne DELIMITER, sonst gleich)</h3>
+<div class="ex" data-id="t1"></div>
+<div class="box merk">Trigger sind gespeicherte Aktionen, die automatisch bei bestimmten Ereignissen (INSERT, UPDATE, DELETE) auf einer Tabelle ausgeführt werden – BEFORE oder AFTER der Änderung, FOR EACH ROW. Typisch: Protokollierung, Validierung, Berechnung abhängiger Werte.</div>
+</section>
+
+<!-- ================= K14 ================= -->
+<section class="ch" id="k14">
+<h2>14 · Transaktionen und ACID</h2>
+<p class="lead">Präsentation SQL 10 + Lehrbuch LF8 S. 272.</p>
+<p>Eine <b>Transaktion</b> fasst mehrere SQL-Befehle zu einer logischen Einheit zusammen: <b>entweder laufen alle (COMMIT) oder keiner (ROLLBACK)</b>. „Alles oder nichts.“</p>
+<div class="box analog">Überweisung von 100 € von Konto A auf Konto B = 2 Befehle: A − 100, B + 100. Wenn der Server nach dem ersten abstürzt, wären 100 € weg. Die Transaktion garantiert: entweder beides oder nichts.</div>
+<pre class="code">START TRANSACTION;          -- (oder BEGIN)
+UPDATE Konto SET Stand = Stand - 100 WHERE Nr = 'A';
+UPDATE Konto SET Stand = Stand + 100 WHERE Nr = 'B';
+COMMIT;                     -- dauerhaft speichern   |  ROLLBACK; = alles zurück</pre>
+<h3>ACID</h3>
+<table class="t"><tr><th>Buchstabe</th><th>Deutsch</th><th>Bedeutung</th></tr>
+<tr><td><b>A</b>tomicity</td><td><span class="de">Atomarität</span></td><td>alles oder nichts</td></tr>
+<tr><td><b>C</b>onsistency</td><td><span class="de">Konsistenz</span></td><td>von einem konsistenten Zustand in einen konsistenten Zustand</td></tr>
+<tr><td><b>I</b>solation</td><td><span class="de">Isolation</span></td><td>parallele Transaktionen beeinflussen sich nicht</td></tr>
+<tr><td><b>D</b>urability</td><td><span class="de">Dauerhaftigkeit</span></td><td>nach COMMIT sind die Änderungen dauerhaft (auch nach einem Absturz)</td></tr></table>
+<table class="t"><tr><th>Vorteile</th><th>Nachteile</th></tr>
+<tr><td>garantierte Datenintegrität; Fehler mit ROLLBACK rückgängig machen; sicherer Mehrbenutzerbetrieb; Konsistenz zwischen Tabellen</td><td>mehr Ressourcen (Sperren = Locking, Protokollierung); komplexer (Deadlocks); <b>nur Engine InnoDB</b>, MyISAM kann keine Transaktionen</td></tr></table>
+<div class="box tip">MariaDB hat standardmäßig <b>Autocommit</b> eingeschaltet: Jeder einzelne Befehl wird sofort gespeichert. Erst START TRANSACTION „pausiert“ das bis COMMIT/ROLLBACK.</div>
+<div class="ex" data-id="t2"></div>
+<div class="box merk">Eine Transaktion fasst mehrere SQL-Befehle zu einer logischen Einheit zusammen, die ganz oder gar nicht ausgeführt wird (START TRANSACTION, COMMIT, ROLLBACK). Sie erfüllt das ACID-Prinzip: Atomarität, Konsistenz, Isolation, Dauerhaftigkeit.</div>
+</section>
+
+<!-- ================= K15 ================= -->
+<section class="ch" id="k15">
+<h2>15 · NoSQL</h2>
+<p class="lead">Präsentation 11 + Lehrbuch LF8 S. 269–272.</p>
+<p><b>NoSQL = „Not only SQL“</b> – Datenbanken ohne klassische Tabellen. Sie speichern Daten flexibel (Schlüssel–Wert, Dokumente, Spalten, Graphen), oft <b>ohne festes Schema</b>, und sind für <b>riesige, verteilte und unstrukturierte Daten</b> gebaut (Big Data, IoT, soziale Netzwerke, Cloud).</p>
+<h3>4 Typen</h3>
+<table class="t"><tr><th>Typ</th><th>Wie gespeichert wird</th><th>Beispieldaten</th><th>Einsatz</th><th>Systeme</th></tr>
+<tr><td><span class="de">Key-Value</span></td><td>Paare Schlüssel → Wert</td><td><code>{"user123": "Max Mustermann"}</code></td><td>Cache, Sessions, Profile</td><td>Redis, DynamoDB</td></tr>
+<tr><td><span class="de">Dokumentenorientiert</span></td><td>Dokumente JSON/BSON/XML, jedes kann andere Felder haben</td><td><code>{"_id":1,"name":"Max","orders":[123,124]}</code></td><td>CMS, Blogs, Kataloge, Webseiten</td><td>MongoDB, CouchDB</td></tr>
+<tr><td><span class="de">Spaltenorientiert</span></td><td>nach Spalten / Spaltenfamilien</td><td><code>user123 → {name:"Max", age:28}</code></td><td>Analysen, Logs, Zeitreihen, IoT</td><td>Cassandra, HBase</td></tr>
+<tr><td><span class="de">Graph</span></td><td>Knoten und Kanten</td><td><code>(Max)-[:FREUND_VON]-&gt;(Lisa)</code></td><td>soziale Netzwerke, Empfehlungen, Routen</td><td>Neo4j</td></tr></table>
+<h3>Besucherin Lena als JSON-Dokument</h3>
+<pre class="code">{
+  "_id": 1,
+  "vorname": "Lena",
+  "nachname": "Schmidt",
+  "alter": 27,
+  "ticket": { "typ": "Erwachsene", "preis": 39.90 },
+  "besuche": [
+    { "attraktion": "Blitzschlag", "uhrzeit": "10:15" },
+    { "attraktion": "Riesenrad",   "uhrzeit": "13:05" }
+  ]
+}</pre>
+<p>Alles über Lena in <b>einem</b> Dokument, keine JOINs. Der Preis dafür: „Blitzschlag“ wird bei jedem Besucher einzeln gespeichert (Redundanz), und eine Umbenennung der Attraktion = tausende Dokumente ändern. Aufbau von JSON: <code>{ }</code> = Objekt, <code>"schlüssel": wert</code>, <code>[ ]</code> = Array (Liste), Werte: Text in Anführungszeichen, Zahlen, true/false, null, verschachtelte Objekte.</p>
+<h3>Relational vs. NoSQL</h3>
+<table class="t"><tr><th></th><th>Relational</th><th>NoSQL</th></tr>
+<tr><td>Schema</td><td>fest; neues Attribut = ganze DB ändern</td><td>flexibel, ohne vorherige Struktur</td></tr>
+<tr><td>Skalierung</td><td><b>vertikal</b> – stärkerer Server</td><td><b>horizontal</b> – mehr Server</td></tr>
+<tr><td>Konsistenz</td><td><b>ACID</b></td><td>meist <b>BASE</b>: Basically Available, Soft state, Eventually consistent (Verfügbarkeit vor Konsistenz)</td></tr>
+<tr><td>Abfragen</td><td>SQL</td><td>keine einheitliche Sprache</td></tr>
+<tr><td>Wann</td><td>wenn ACID nötig ist (Geld!), strukturierte Daten</td><td>Echtzeit, unstrukturierte Daten, schnell wachsende Mengen</td></tr></table>
+<h3>Big Data – die 5 V</h3>
+<p><b>Volume</b> (Menge) · <b>Variety</b> (Vielfalt, ~90 % der Daten unstrukturiert) · <b>Velocity</b> (Geschwindigkeit der Entstehung und Verarbeitung) · <b>Veracity</b> (Glaubwürdigkeit, Qualität) · <b>Value</b> (Wert für das Unternehmen).</p>
+<p>Datenarten: <b>strukturiert</b> (Tabellen), <b>semistrukturiert</b> (JSON, XML, E-Mails), <b>unstrukturiert</b> (Text, Bilder, Audio, Video).</p>
+<div class="box trap">MongoDB = <b>dokumentenorientiert</b>, nicht Graph. MySQL = <b>relational</b>, nicht Key-Value. NoSQL skaliert <b>horizontal</b>. Diese drei Fangfragen stehen direkt im Kompetenzcheck des Buchs.</div>
+<div class="box merk">NoSQL („Not only SQL“) bezeichnet nicht-relationale Datenbanken mit flexiblen Schemata, die horizontal skalieren. Vier Haupttypen: Key-Value-, Dokumenten-, spaltenorientierte und Graphdatenbanken. Statt ACID setzen viele NoSQL-Systeme auf BASE (Basically Available, Soft state, Eventually consistent).</div>
+</section>
+
+<!-- ================= KLAUSUR 1 ================= -->
+<section class="ch" id="klausur1">
+<h2>📝 Probeklausur 2025 – AdventureLand</h2>
+<p class="lead">Die Originalaufgaben aus deinem PDF. 13 Missionen, 100 Punkte. Datenbank = Freizeitpark.</p>
+<div class="box tip"><b>Ein Vorgehen, das wirklich funktioniert:</b><br>1) Druck das ERD unten aus / öffne es. 2) Schreib alle Missionen <b>auf Papier</b>, ohne Computer (in der Klausur ist „nur Schreibmaterial erlaubt“). 3) Erst dann hier abtippen und <b>✓ Prüfen</b>. 4) Jeden Fehler ins Heft schreiben: <i>was ich geschrieben habe → was richtig ist → warum</i>.</div>
+<div data-erd="park"></div>
+<div class="ex" data-id="m1"></div>
+<div class="ex" data-id="m2"></div>
+<div class="ex" data-id="m3"></div>
+<div class="ex" data-id="m4"></div>
+<div class="ex" data-id="m5"></div>
+<div class="ex" data-id="m6"></div>
+<div class="ex" data-id="m7"></div>
+<div class="ex" data-id="m8"></div>
+<div class="ex" data-id="m9"></div>
+<div class="ex" data-id="m10"></div>
+<div class="ex" data-id="m11"></div>
+<div class="ex" data-id="m12"></div>
+<h3>Mission 13 (20 P) – Datenmodell</h3>
+<div class="box"><i>„Das jetzige Datenmodell soll um eine Verkaufstabelle für Tickets ergänzt werden, sodass eine Kaufhistorie möglich wird, die Preisentwicklung analysiert werden kann und ein Besucher auch mehrere Tickets kaufen und z. B. an die Familie weitergeben kann. Es soll nur die Verkaufstabelle (Entitätstyp), die Beziehungen und Kardinalitäten erstellt werden. Alle Primär- und Fremdschlüsselattribute sind entsprechend zu kennzeichnen.“</i><br>Zeichne die Tabellen Besucher, Tickets und die neue Tabelle auf Papier.</div>
+<button class="reveal-btn ghost small" data-t="m13-sol">👁 Offizielle Lösung aufdecken</button>
+<div id="m13-sol" class="box hidden">
+<b>Ticketverkauf</b>: Ticketverkauf_ID (PK), Menge, Datum, Ticket_ID (FK), Besucher_ID (FK)<br>
+Besucher (Besucher_ID PK) <b>1 — N</b> Ticketverkauf · Tickets (Ticket_ID PK) <b>1 — N</b> Ticketverkauf · weiterhin Besucher 1 — N Tickets (Besucher_ID FK in Tickets).<br>
+<i>Meine Anmerkung:</i> Für die „Preisentwicklung“ wäre es sauberer, in Ticketverkauf auch den <b>Preis</b> (Preis am Verkaufstag) zu speichern – sonst geht bei einer Preisänderung in Tickets die Historie verloren. Schreib das in der Klausur ruhig als begründete Erweiterung dazu.
+</div>
+</section>
+
+<!-- ================= KLAUSUR 2 ================= -->
+<section class="ch" id="klausur2">
+<h2>📝 Klausur-Simulation B – Bibliothek</h2>
+<p class="lead">Eine neue Datenbank, die du nicht kennst → zeigt, ob du SQL kannst oder nur AdventureLand auswendig weißt. 100 Punkte, 60 Minuten. Tipps gibt es hier absichtlich nicht.</p>
+<div class="toolbar"><button id="timer-btn">▶ Timer starten (60 min)</button><b id="timer"></b></div>
+<div data-erd="bib"></div>
+<p class="muted small">Tabellen: Verlag, Buch, Kunde, Ausleihe (Rueckgabedatum = NULL → das Buch ist noch nicht zurückgegeben).</p>
+<div class="ex" data-id="b1"></div>
+<div class="ex" data-id="b2"></div>
+<div class="ex" data-id="b3"></div>
+<div class="ex" data-id="b4"></div>
+<div class="ex" data-id="b5"></div>
+<div class="ex" data-id="b6"></div>
+<div class="ex" data-id="b7"></div>
+<div class="ex" data-id="b8"></div>
+<div class="ex" data-id="b9"></div>
+<div class="ex" data-id="b10"></div>
+<div class="ex" data-id="b11"></div>
+<div class="ex" data-id="b12"></div>
+<div class="ex" data-id="b13"></div>
+<h3>Aufgabe 14 (4 P) – Rechte</h3>
+<div class="box">Legen Sie den Benutzer <b>azubi</b> an, der sich nur lokal anmelden darf (Passwort <b>Start123</b>), und geben Sie ihm ausschließlich Leserechte auf die Tabelle <b>Buch</b> der Datenbank <b>bibliothek</b>.</div>
+<button class="reveal-btn ghost small" data-t="b14-sol">👁 Lösung</button>
+<div id="b14-sol" class="box hidden"><pre>CREATE USER 'azubi'@'localhost' IDENTIFIED BY 'Start123';
+GRANT SELECT ON bibliothek.Buch TO 'azubi'@'localhost';</pre>2 Punkte pro Zeile. Häufiger Punktverlust: fehlende Anführungszeichen um Name/Host, <code>*.*</code> statt <code>bibliothek.Buch</code>.</div>
+<h3>Aufgabe 15 (14 P) – Datenmodell</h3>
+<div class="box">Ein Buch kann von mehreren Autoren geschrieben werden, ein Autor kann mehrere Bücher schreiben. Von jedem Autor sollen Vorname und Nachname gespeichert werden. Erweitern Sie das Datenmodell. Kennzeichnen Sie alle Primär- und Fremdschlüssel sowie die Kardinalitäten.</div>
+<button class="reveal-btn ghost small" data-t="b15-sol">👁 Lösung</button>
+<div id="b15-sol" class="box hidden"><b>Autor</b> (Autor_ID PK, Vorname, Nachname) – 4 P<br><b>Buch_Autor</b> (Buch_ID PK/FK, Autor_ID PK/FK) – Kreuztabelle, zusammengesetzter PK – 6 P<br>Buch <b>1 — n</b> Buch_Autor <b>n — 1</b> Autor – 4 P<br>(Alternative: Buch_Autor_ID als künstlicher PK + 2× FK – auch richtig.)</div>
+<h3>Aufgabe 16 (4 P) – Theorie</h3>
+<div class="box">Nennen und erklären Sie zwei Anomalien, die in nicht normalisierten Tabellen auftreten können.</div>
+<button class="reveal-btn ghost small" data-t="b16-sol">👁 Lösung</button>
+<div id="b16-sol" class="box hidden">Beliebige 2 von 3 (je 2 Punkte):<br><b>Änderungsanomalie</b>: Redundant gespeicherte Daten werden beim Ändern nicht überall geändert → widersprüchliche Daten.<br><b>Einfügeanomalie</b>: Daten können nur zusammen mit anderen Daten erfasst werden (z. B. Verlag ohne Buch nicht speicherbar).<br><b>Löschanomalie</b>: Beim Löschen eines Datensatzes gehen ungewollt andere Informationen verloren.</div>
+<div class="box tip">Zähl deine Punkte zusammen: automatisch geprüfte Aufgaben (B1–B13 = 78 P.) + Papieraufgaben (22 P.). Bei der IHK gilt meist: ab 50 % „ausreichend“, ab 81 % „gut“ – den genauen Schlüssel deiner Schule <b>kenne ich nicht</b>.</div>
+</section>
+
+<!-- ================= QUIZ ================= -->
+<section class="ch" id="quiz">
+<h2>❓ Quiz Richtig / Falsch</h2>
+<p class="lead">Aussagen auf Deutsch – wie im Kompetenzcheck des Buchs und in der Klausur.</p>
+<div class="toolbar"><select id="quiz-filter"></select><b id="quiz-score"></b><button id="quiz-wrong" class="ghost small">↻ falsche wiederholen</button><button id="quiz-reset" class="ghost small">⟲ alles von vorne</button></div>
+<div id="quiz-box"></div>
+</section>
+
+<!-- ================= SANDBOX ================= -->
+<section class="ch" id="sandbox">
+<h2>🧪 Sandbox</h2>
+<p class="lead">Freies Ausprobieren. Anders als bei den Übungen <b>merkt sich</b> die Datenbank hier Änderungen, bis du auf „Zurücksetzen“ klickst.</p>
+<div class="toolbar"><select id="sb-db"><option value="park">Freizeitpark</option><option value="bib">Bibliothek</option></select>
+<button id="sb-run">▶ Ausführen (Strg+Enter)</button><button id="sb-reset" class="ghost">⟲ Datenbank zurücksetzen</button></div>
+<textarea id="sb-sql" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off">SELECT * FROM Besucher;</textarea>
+<div id="sb-out"></div>
+<div class="sb-schema" data-db="park"><p>Tabellen (anklicken = anzeigen):
+<button class="ghost small" data-sbtable="Attraktion" data-sbdb="park">Attraktion</button>
+<button class="ghost small" data-sbtable="Besucher" data-sbdb="park">Besucher</button>
+<button class="ghost small" data-sbtable="Besuche" data-sbdb="park">Besuche</button>
+<button class="ghost small" data-sbtable="Tickets" data-sbdb="park">Tickets</button>
+<button class="ghost small" data-sbtable="Snacks" data-sbdb="park">Snacks</button>
+<button class="ghost small" data-sbtable="Verkauf" data-sbdb="park">Verkauf</button></p>
+<div data-erd="park"></div></div>
+<div class="sb-schema hidden" data-db="bib"><p>Tabellen:
+<button class="ghost small" data-sbtable="Verlag" data-sbdb="bib">Verlag</button>
+<button class="ghost small" data-sbtable="Buch" data-sbdb="bib">Buch</button>
+<button class="ghost small" data-sbtable="Kunde" data-sbdb="bib">Kunde</button>
+<button class="ghost small" data-sbtable="Ausleihe" data-sbdb="bib">Ausleihe</button></p>
+<div data-erd="bib"></div></div>
+<div class="box"><b>Was die Sandbox kann und was nicht</b>
+Sie läuft mit <b>SQLite</b> direkt im Browser (nicht mit MariaDB). Die meisten Unterschiede habe ich überbrückt: <code>AUTO_INCREMENT</code>, <code>`Alter`</code>, <code>CONCAT</code>, <code>SUBSTRING(x FROM 1 FOR 1)</code>, <code>LEFT/RIGHT</code>, <code>YEAR/MONTH/DAY/WEEKDAY/HOUR/MINUTE</code>, <code>CURDATE()</code>, <code>NOW()</code>, <code>DATEDIFF</code> und <code>DATEADD</code> (beide Schreibweisen), <code>DATE_ADD</code>, <code>STDDEV/VARIANCE/CORR</code>, <code>START TRANSACTION</code>, <code>SHOW TABLES</code>, <code>DESCRIBE tabelle</code>.<br>
+<b>Nicht möglich</b>: CREATE USER, GRANT, REVOKE, CREATE PROCEDURE, CALL (das kann nur ein Server) und Trigger mit DELIMITER (schreib ihn ohne DELIMITER, siehe Kap. 13). Textvergleiche mit <code>=</code> beachten wie in MariaDB keine Groß-/Kleinschreibung.</div>
+</section>
+
+<!-- ================= GLOSSAR ================= -->
+<section class="ch" id="glossar">
+<h2>📖 Glossar DE – CZ – EN</h2>
+<p class="lead">Hake „Tschechisch und Englisch ausblenden“ an und frag dich selbst ab: Ein Klick auf das graue Feld zeigt die Antwort.</p>
+<div class="toolbar"><input type="search" id="gl-search" placeholder="suchen …"><label><input type="checkbox" id="gl-hide"> Tschechisch und Englisch ausblenden</label></div>
+<table class="t" id="gl-table"><thead><tr><th>Deutsch</th><th>Tschechisch</th><th>Englisch</th><th>Erklärung</th></tr></thead><tbody id="gl-body"></tbody></table>
+</section>
+
+<!-- ================= FEHLER & SPICKZETTEL ================= -->
+<section class="ch" id="chyby">
+<h2>🔍 Fehler in den Unterlagen & Spickzettel auf einer Seite</h2>
+<h3>Was in deinen Unterlagen falsch oder ungenau ist</h3>
+<p>Ich habe es mit der Datenbank und der Dokumentation geprüft. Das heißt nicht, dass das Material schlecht ist – nur diese Stellen solltest du in der Klausur nicht wörtlich abschreiben.</p>
+<table class="t"><tr><th>Wo</th><th>Was dort steht</th><th>Richtig</th></tr>
+<tr><td>Probeklausur, Mission 10</td><td><code>WHERE Status = 'geschlossen'</code></td><td>In den Daten gibt es kein „geschlossen“ (Geisterhaus = „Wartung“) → das Ergebnis ist leer. Auf Papier schreibst du nach der Aufgabe, aber du solltest wissen, warum.</td></tr>
+<tr><td>Probeklausur, Mission 6</td><td><code>SELECT s.*, SUM(v.Menge) … GROUP BY s.Snack_ID</code></td><td>Funktioniert in MariaDB (Snack_ID ist PK). Sauberer: im SELECT nur Spalten aus dem GROUP BY + Aggregation.</td></tr>
+<tr><td>SQL 07, Folie 21</td><td><code>REVOKE … ON *.* TO …</code></td><td><code>REVOKE … FROM …</code></td></tr>
+<tr><td>SQL 06, Zusammenfassung</td><td>„INNER JOIN verknüpft automatisch über gleichnamige Spalten“</td><td>Das ist der NATURAL JOIN. INNER JOIN braucht ON.</td></tr>
+<tr><td>SQL 06, LEFT/RIGHT JOIN</td><td><code>ON diw.MITARBEITER = mit.ID</code>, vorher <code>= mit.PERSONALNUMMER</code></td><td>Uneinheitlich – es kommt darauf an, auf welche Spalte der FK wirklich zeigt. Immer nach dem Schema.</td></tr>
+<tr><td>SQL 09, Folie 13</td><td><code>EXEC sp_rename</code> für Trigger</td><td>Das ist MS SQL Server. In MariaDB: DROP + neu CREATE.</td></tr>
+<tr><td>SQL 03, Folien 8–9</td><td><code>NOTIN</code>, <code>LIKE SCH%</code>, <code>ID &gt;= '5'</code></td><td><code>NOT IN</code>, <code>LIKE 'SCH%'</code>, Zahlen ohne Anführungszeichen</td></tr>
+<tr><td>Cheatsheet / IHK-Spickzettel</td><td>DATE „Format DD.MM.YYYY“; DATEADD/DATEDIFF mit Datumsteil; CORR</td><td>In MariaDB wird das Datum als <code>'2026-11-08'</code> geschrieben. DATEADD/DATEDIFF mit Datumsteil ist SQL-Server-Schreibweise (Kap. 8b). CORR gibt es in MariaDB nicht.</td></tr>
+<tr><td>SQL 08 + 09</td><td>„Prozedur löschen / Trigger löschen: Eine Prozedur muss ähnlich wie eine Methode aufgerufen werden“</td><td>Text von einer falschen Folie kopiert, ignorieren.</td></tr></table>
+
+<h3>Spickzettel – alles Wichtige an einem Ort</h3>
+<div class="twocol">
+<div class="box"><b>Abfrage</b><pre>SELECT [DISTINCT] sp1, sp2 AS alias, COUNT(*)
+FROM tab1 t1
+JOIN tab2 t2 ON t2.FK = t1.PK
+LEFT JOIN tab3 t3 ON t3.FK = t2.PK
+WHERE bedingung
+GROUP BY sp1, sp2
+HAVING COUNT(*) > 1
+ORDER BY sp1 [ASC|DESC]
+LIMIT 5;</pre></div>
+<div class="box"><b>WHERE</b><pre>=  &lt;&gt;  &lt;  &gt;  &lt;=  &gt;=
+AND  OR  NOT  ( )
+BETWEEN 10 AND 30
+IN ('a','b')   NOT IN (…)
+LIKE 'A%'  '%a%'  '_a%'
+IS NULL   IS NOT NULL
+x &gt; (SELECT AVG(x) FROM …)
+EXISTS (SELECT …)</pre></div>
+<div class="box"><b>Daten</b><pre>INSERT INTO t (a, b) VALUES ('x', 1);
+UPDATE t SET a = 'y' WHERE id = 3;
+DELETE FROM t WHERE id = 3;</pre></div>
+<div class="box"><b>Struktur</b><pre>CREATE TABLE t (
+  id INT NOT NULL AUTO_INCREMENT,
+  name VARCHAR(50) NOT NULL,
+  preis DECIMAL(6,2),
+  x_id INT,
+  PRIMARY KEY (id),
+  FOREIGN KEY (x_id) REFERENCES x (x_id));
+ALTER TABLE t ADD COLUMN c INT;
+ALTER TABLE t DROP COLUMN c;
+DROP TABLE t;</pre></div>
+<div class="box"><b>Rechte</b><pre>CREATE USER 'u'@'localhost' IDENTIFIED BY 'pw';
+GRANT SELECT, INSERT ON db.tab TO 'u'@'localhost';
+REVOKE INSERT ON db.tab FROM 'u'@'localhost';
+SHOW GRANTS FOR 'u'@'localhost';
+DROP USER 'u'@'localhost';</pre></div>
+<div class="box"><b>Prozedur / Trigger / Transaktion</b><pre>DELIMITER $$
+CREATE PROCEDURE p (IN a INT) BEGIN … END $$
+DELIMITER ;
+CALL p(5);
+
+CREATE TRIGGER tr AFTER INSERT ON t
+FOR EACH ROW BEGIN … NEW.sp … END $$
+
+START TRANSACTION; … COMMIT; / ROLLBACK;</pre></div>
+</div>
+<div class="box"><b>Theorie in 8 Zeilen</b>
+DBS = Datenbasis + DBMS · ANSI/SPARC: extern – konzeptionell – intern · Stand-Alone / File-Share (DBMS auf dem Client) / Client-Server (DBMS auf dem Server) · Phasen: Analyse → konzeptionell (ERM) → logisch (Tabellen + Normalisierung) → Implementierung (SQL) · ERM: Rechteck/Ellipse/Raute, Schlüssel unterstrichen · 1:n → FK auf der n-Seite, m:n → Kreuztabelle · 1NF atomar, 2NF ganzer Schlüssel, 3NF keine transitiven Abhängigkeiten · Anomalien: Einfüge-, Änderungs-, Lösch- · DDL/DML/DCL/TCL · ACID vs. BASE · NoSQL: Key-Value, Dokument, Spalten, Graph.</div>
+</section>
+
+</main>
+</div>
+</template>
 <script>
 
 // We are modularizing this manually because the current modularize setting in Emscripten has some issues:
@@ -1726,6 +3061,46 @@ u6:{db:'park',mode:'set',de:'Zeige alle Besucher, die mindestens einen Snack gek
 u7:{db:'park',mode:'verify',de:'Erstelle eine neue Tabelle „Kinder“ mit allen Besuchern unter 12 Jahren (CREATE TABLE … AS SELECT).',cz:'Vytvoř novou tabulku „Kinder“ se všemi návštěvníky mladšími 12 let (CREATE TABLE … AS SELECT).',
  hint:'CREATE TABLE Kinder AS SELECT ... FROM Besucher WHERE ...;',sol:'CREATE TABLE Kinder AS SELECT * FROM Besucher WHERE `Alter` < 12;',verify:'SELECT * FROM Kinder;'},
 
+
+/* ---------- Funktionen aus dem IHK-Spickzettel ---------- */
+f1:{db:'park',mode:'set',de:'Zeige von jedem Besucher den Nachnamen und die ersten 3 Buchstaben des Nachnamens.',cz:'U každého návštěvníka vypiš příjmení a jeho první 3 písmena.',
+ hint:'LEFT(Zeichenkette, Anzahl) → LEFT(Nachname, 3)',sol:'SELECT Nachname, LEFT(Nachname, 3) FROM Besucher;'},
+f2:{db:'park',mode:'set',de:'Zeige den Namen jedes Snacks und seine letzten 2 Buchstaben.',cz:'Vypiš název každého snacku a jeho poslední 2 písmena.',
+ hint:'RIGHT(Zeichenkette, Anzahl)',sol:'SELECT Name, RIGHT(Name, 2) FROM Snacks;'},
+f3:{db:'park',mode:'set',de:'Erzeuge für jeden Besucher seine Initialen (z. B. „LS“ für Lena Schmidt) in einer Spalte „Initialen“.',cz:'Vytvoř každému návštěvníkovi iniciály (např. „LS“ pro Lenu Schmidt) ve sloupci „Initialen“.',
+ hint:'Kombinuj: CONCAT(LEFT(Vorname, 1), LEFT(Nachname, 1)) AS Initialen',sol:'SELECT CONCAT(LEFT(Vorname, 1), LEFT(Nachname, 1)) AS Initialen FROM Besucher;'},
+f4:{db:'park',mode:'set',de:'Zeige für jeden Besuch die Besuche_ID und nur die Stunde der Uhrzeit.',cz:'U každé návštěvy vypiš Besuche_ID a jen hodinu z času.',
+ hint:'HOUR(Uhrzeit)',sol:'SELECT Besuche_ID, HOUR(Uhrzeit) FROM Besuche;'},
+f5:{db:'park',mode:'set',de:'Wie viele Besuche gab es pro Stunde (10 Uhr, 11 Uhr, …)?',cz:'Kolik návštěv bylo v každé hodině (10 h, 11 h, …)?',
+ hint:'Seskupovat jde i podle funkce: GROUP BY HOUR(Uhrzeit)',sol:'SELECT HOUR(Uhrzeit) AS Stunde, COUNT(*) FROM Besuche GROUP BY HOUR(Uhrzeit);'},
+f6:{db:'park',mode:'set',de:'Welche Besuche fanden genau zur halben Stunde statt (Minute = 30)?',cz:'Které návštěvy byly přesně v půl (minuta = 30)?',
+ hint:'WHERE MINUTE(Uhrzeit) = 30',sol:'SELECT * FROM Besuche WHERE MINUTE(Uhrzeit) = 30;'},
+f7:{db:'park',mode:'set',de:'Zeige jede Verkauf_ID mit Datum und dem Wochentag als Zahl (Montag = 0).',cz:'Vypiš každé Verkauf_ID s datem a dnem v týdnu jako číslem (pondělí = 0).',
+ hint:'WEEKDAY(Datum). 8. 11. 2026 byla neděle → 6, 9. 11. pondělí → 0.',sol:'SELECT Verkauf_ID, Datum, WEEKDAY(Datum) FROM Verkauf;'},
+f8:{db:'park',mode:'set',de:'Zeige alle Verkäufe vom 9. November – ohne das Datum als Text zu schreiben, nur mit DAY und MONTH.',cz:'Vypiš všechny prodeje z 9. listopadu – bez zápisu data jako textu, jen pomocí DAY a MONTH.',
+ hint:'WHERE DAY(Datum) = 9 AND MONTH(Datum) = 11',sol:'SELECT * FROM Verkauf WHERE DAY(Datum) = 9 AND MONTH(Datum) = 11;'},
+f9:{db:'bib',mode:'set',de:'Wie viele Tage war jedes bereits zurückgegebene Buch ausgeliehen? (Ausleihe_ID und Anzahl Tage)',cz:'Kolik dní byla každá už vrácená kniha půjčená? (Ausleihe_ID a počet dní)',
+ hint:'IHK-Schreibweise: DATEDIFF(DAY, Ausleihdatum, Rueckgabedatum). MariaDB: DATEDIFF(Rueckgabedatum, Ausleihdatum). Nezapomeň: jen vrácené → IS NOT NULL.',
+ sol:['SELECT Ausleihe_ID, DATEDIFF(DAY, Ausleihdatum, Rueckgabedatum) AS Tage FROM Ausleihe WHERE Rueckgabedatum IS NOT NULL;','SELECT Ausleihe_ID, DATEDIFF(Rueckgabedatum, Ausleihdatum) AS Tage FROM Ausleihe WHERE Rueckgabedatum IS NOT NULL;'],
+ expl:'Obě verze dají stejný výsledek. Pozor na POŘADÍ: IHK/SQL Server = (jednotka, OD, DO). MariaDB = (DO, OD) – obráceně a bez jednotky, vždy ve dnech.'},
+f10:{db:'bib',mode:'set',de:'Die Leihfrist beträgt 14 Tage. Zeige für jede Ausleihe die Ausleihe_ID, das Ausleihdatum und das Rückgabe-Soll-Datum.',cz:'Výpůjční lhůta je 14 dní. U každé výpůjčky vypiš Ausleihe_ID, datum půjčení a datum, kdy se má vrátit.',
+ hint:'IHK: DATEADD(DAY, 14, Ausleihdatum). MariaDB: DATE_ADD(Ausleihdatum, INTERVAL 14 DAY).',
+ sol:['SELECT Ausleihe_ID, Ausleihdatum, DATEADD(DAY, 14, Ausleihdatum) AS Frist FROM Ausleihe;','SELECT Ausleihe_ID, Ausleihdatum, DATE_ADD(Ausleihdatum, INTERVAL 14 DAY) AS Frist FROM Ausleihe;']},
+f11:{db:'park',mode:'set',de:'Berechne für die Snackpreise den Durchschnitt, die Standardabweichung und die Varianz.',cz:'Spočítej u cen snacků průměr, směrodatnou odchylku a rozptyl.',
+ hint:'AVG(Preis), STDDEV(Preis), VARIANCE(Preis) – všechno v jednom SELECTu.',sol:'SELECT AVG(Preis), STDDEV(Preis), VARIANCE(Preis) FROM Snacks;',
+ expl:'Průměr je 3,85 €. Směrodatná odchylka ≈ 0,68 € říká: „typicky se cena od průměru liší asi o 68 centů“. Rozptyl je odchylka na druhou (≈ 0,47) – sám o sobě se špatně čte, proto se používá spíš odchylka.'},
+/* ---------- Unterabfrage im FROM ---------- */
+u8:{db:'park',mode:'set',de:'Wie viele Besuche hat ein Besucher im Durchschnitt gemacht? (Unterabfrage im FROM)',cz:'Kolik návštěv udělal návštěvník v průměru? (poddotaz ve FROM)',
+ hint:'Krok 1 (uvnitř): počet návštěv na návštěvníka = SELECT Besucher_ID, COUNT(*) AS Anzahl FROM Besuche GROUP BY Besucher_ID. Krok 2 (venku): SELECT AVG(Anzahl) FROM ( … ) AS tbl;',
+ sol:'SELECT AVG(Anzahl) FROM (SELECT Besucher_ID, COUNT(*) AS Anzahl FROM Besuche GROUP BY Besucher_ID) AS tbl;',
+ expl:'12 návštěv : 8 návštěvníků = 1,5. Proč to nejde bez poddotazu? AVG(COUNT(*)) – agregace v agregaci – SQL nedovolí. Proto se nejdřív spočítá „mezitabulka“ a z ní pak průměr.'},
+u9:{db:'park',mode:'set',de:'Wie hoch ist der größte Snack-Umsatz, den ein einzelner Besucher gemacht hat?',cz:'Jaká je nejvyšší útrata za snacky jednoho návštěvníka?',
+ hint:'Uvnitř: útrata na návštěvníka (JOIN Verkauf + Snacks, SUM(Menge * Preis), GROUP BY Besucher_ID). Venku: MAX(…) FROM ( … ) AS tbl.',
+ sol:'SELECT MAX(Umsatz) FROM (SELECT v.Besucher_ID, SUM(v.Menge * s.Preis) AS Umsatz FROM Verkauf v JOIN Snacks s ON v.Snack_ID = s.Snack_ID GROUP BY v.Besucher_ID) AS tbl;'},
+u10:{db:'bib',mode:'set',de:'Wie viele Kunden haben mehr als eine Ausleihe? Gib nur die Anzahl aus.',cz:'Kolik zákazníků má víc než jednu výpůjčku? Vypiš jen počet.',
+ hint:'Uvnitř: počet výpůjček na zákazníka. Venku: COUNT(*) … WHERE Anzahl > 1.',
+ sol:['SELECT COUNT(*) FROM (SELECT Kunde_ID, COUNT(*) AS Anzahl FROM Ausleihe GROUP BY Kunde_ID) AS tbl WHERE Anzahl > 1;','SELECT COUNT(*) FROM (SELECT Kunde_ID FROM Ausleihe GROUP BY Kunde_ID HAVING COUNT(*) > 1) AS tbl;']},
+
 /* ---------- DML / DDL ---------- */
 d1:{db:'park',mode:'verify',de:'Füge einen neuen Besucher ein: Tom Klein, 16 Jahre.',cz:'Vlož nového návštěvníka: Tom Klein, 16 let.',
  hint:'Besucher_ID nevyplňuješ – je AUTO_INCREMENT.',sol:"INSERT INTO Besucher (Vorname, Nachname, `Alter`) VALUES ('Tom', 'Klein', 16);",verify:'SELECT Vorname, Nachname, `Alter` FROM Besucher;'},
@@ -1870,6 +3245,10 @@ window.QUIZ = [
 {k:'SQL',q:'Mit „= NULL“ prüft man, ob ein Feld leer ist.',a:false,w:'Musí se psát IS NULL / IS NOT NULL. „= NULL“ nevrátí nikdy nic.'},
 {k:'SQL',q:'BETWEEN 10 AND 30 schließt die Grenzen 10 und 30 mit ein.',a:true,w:'BETWEEN je včetně hranic (≥ 10 AND ≤ 30).'},
 {k:'SQL',q:'ORDER BY sortiert standardmäßig absteigend.',a:false,w:'Výchozí je ASC = vzestupně. Sestupně musíš napsat DESC.'},
+{k:'Funktionen',q:'LEFT(\'Riesenrad\', 5) liefert „Riese“.',a:true,w:'LEFT nimmt die ersten 5 Zeichen von links.'},
+{k:'Funktionen',q:'WEEKDAY() liefert für einen Montag die Zahl 1.',a:false,w:'Podle IHK taháku i MariaDB: pondělí = 0, neděle = 6.'},
+{k:'Funktionen',q:'Mit STDDEV() berechnet man die Standardabweichung der Werte einer Spalte.',a:true,w:'Směrodatná odchylka = jak moc se hodnoty typicky liší od průměru.'},
+{k:'Unterabfragen',q:'Eine Unterabfrage im FROM-Teil braucht in MariaDB einen Aliasnamen (z. B. AS tbl).',a:true,w:'Jinak MariaDB hlásí „Every derived table must have its own alias“.'},
 {k:'JOIN',q:'Mit INNER JOIN werden nur die Datensätze angezeigt, bei denen eine Verknüpfung zwischen beiden Tabellen besteht.',a:true,w:'Jen „páry“, které k sobě mají protějšek.'},
 {k:'JOIN',q:'Mit RIGHT JOIN werden alle Datensätze der linken und der rechten Tabelle angezeigt.',a:false,w:'To je FULL JOIN. RIGHT JOIN = všechny z PRAVÉ + odpovídající z levé.'},
 {k:'JOIN',q:'Ein CROSS JOIN liefert das kartesische Produkt beider Tabellen.',a:true,w:'Každý s každým: 8 návštěvníků × 6 snacků = 48 řádků.'},
@@ -1967,10 +3346,261 @@ window.GLOSSAR = [
 
 </script>
 <script>
+// Deutsche Texte für Tipps, Erklärungen, Quiz-Begründungen und Glossar
+window.EX_DE = {
+s1:{hint:'Das Sternchen * = alle Spalten.'},
+s2:{hint:'Statt * die Spaltennamen mit Komma getrennt schreiben.'},
+s3:{hint:'Duplikate entfernt DISTINCT.'},
+s4:{hint:'ORDER BY ... DESC'},
+s5:{hint:'ORDER BY kann mehrere Spalten: ORDER BY spalte1, spalte2'},
+s6:{hint:'Absteigend sortieren und die Zeilenanzahl mit LIMIT begrenzen.'},
+s7:{hint:'Spalte umbenennen = Alias: spalte AS neuer_name'},
+w1:{hint:'Die Spalte heißt Alter – das ist in MySQL ein reserviertes Wort, deshalb `Alter` in Backticks. Deutsche Tastatur: Umschalt + ´ (neben ß), dann Leertaste.'},
+w2:{hint:'Ungleich = <> (oder !=).'},
+w3:{hint:'BETWEEN a AND b – die Grenzen SIND eingeschlossen.'},
+w4:{hint:"IN ('wert1','wert2')"},
+w5:{hint:"LIKE 'L%' – % bedeutet „beliebig viel, auch nichts“."},
+w6:{hint:'_ (Unterstrich) = genau EIN beliebiges Zeichen.'},
+w7:{hint:"Zwei Bedingungen mit AND verbinden. „Enthält o“ = LIKE '%o%'."},
+w8:{hint:'Achtung Klammern! AND hat Vorrang vor OR. Ohne Klammern rutscht das Geisterhaus ins Ergebnis, obwohl es in Wartung ist.'},
+w9:{hint:"Die Uhrzeit wird als Text geschrieben: '11:00:00'."},
+w10:{hint:'Mindestalter muss ≤ 14 sein und gleichzeitig Status geöffnet.'},
+w11:{hint:'Nach dem leeren Wert NULL fragst du NIE mit = NULL, sondern mit IS NULL.'},
+a1:{hint:'COUNT(*)'},
+a2:{hint:'AVG(`Alter`)'},
+a3:{hint:'MIN() und MAX() kannst du in ein SELECT schreiben.'},
+a4:{hint:'SUM(Preis)'},
+a5:{hint:'Die Spalte, nach der du gruppierst, steht im SELECT und im GROUP BY.'},
+a6:{hint:'Tabelle Besuche, GROUP BY Attraktion_ID.'},
+a7:{hint:'Eine Bedingung auf die Gruppe (auf COUNT) gehört in HAVING, nicht in WHERE.'},
+a8:{hint:'SUM(Menge) + GROUP BY Besucher_ID'},
+a9:{hint:"CONCAT(Vorname, ' ', Nachname) AS Name"},
+a10:{hint:"SUBSTRING(Vorname FROM 1 FOR 1) nimmt den ersten Buchstaben. Dann CONCAT(Nachname, ', ', ..., '.')"},
+a11:{hint:'GROUP BY Datum'},
+a12:{hint:'DAY(Datum)'},
+j1:{hint:'FROM Tickets t JOIN Besucher b ON t.Besucher_ID = b.Besucher_ID'},
+j2:{hint:'Besuche + Attraktion über Attraktion_ID.'},
+j3:{hint:'3 Tabellen: Besucher – Besuche – Attraktion. Besuche ist der „Vermittler“. Achtung: Drei Besuche sind zur selben Zeit 12:10 – die Prüfung achtet bei der Reihenfolge nur auf die Uhrzeit.'},
+j4:{hint:'Besucher – Verkauf – Snacks, dann WHERE auf den Namen.'},
+j5:{hint:'JOIN über 3 Tabellen + SUM(v.Menge * s.Preis) + GROUP BY Besucher.'},
+j6:{hint:'LEFT JOIN + COUNT(b.Besuche_ID) – nicht COUNT(*)! COUNT(*) würde beim Geisterhaus 1 zählen.'},
+j7:{hint:'LEFT JOIN Verkauf und dann WHERE v.Verkauf_ID IS NULL.'},
+j8:{hint:'COUNT(DISTINCT b.Besucher_ID) – Lena war nur einmal im Riesenrad, aber Sophie 2× im Kinderkarussell.'},
+j9:{hint:'SELECT COUNT(*) FROM Besucher CROSS JOIN Snacks; – und dann im Kopf prüfen: 8 × 6.'},
+j10:{hint:'Buch.Verlag_ID = Verlag.Verlag_ID. Aliasse helfen.'},
+u1:{hint:'WHERE Preis > (SELECT AVG(Preis) FROM Snacks)'},
+u2:{hint:'Dasselbe Muster wie u1.'},
+u3:{hint:'Zuerst das MAX-Alter in der Unterabfrage ermitteln, dann die Person mit diesem Alter suchen.'},
+u4:{hint:'Von innen nach außen: 1) ID der Attraktion Riesenrad, 2) Besucher_ID aus Besuche mit dieser ID (mehrere Werte → IN), 3) Namen.'},
+u5:{hint:'WHERE Attraktion_ID NOT IN (SELECT Attraktion_ID FROM Besuche)'},
+u6:{hint:'WHERE EXISTS (SELECT * FROM Verkauf v WHERE v.Besucher_ID = b.Besucher_ID) – die Unterabfrage fragt „gibt es zu DIESEM Besucher mindestens einen Verkauf?“'},
+u7:{hint:'CREATE TABLE Kinder AS SELECT ... FROM Besucher WHERE ...;'},
+u8:{hint:'Schritt 1 (innen): Anzahl Besuche pro Besucher = SELECT Besucher_ID, COUNT(*) AS Anzahl FROM Besuche GROUP BY Besucher_ID. Schritt 2 (außen): SELECT AVG(Anzahl) FROM ( … ) AS tbl;',
+ expl:'12 Besuche : 8 Besucher = 1,5. Warum geht es nicht ohne Unterabfrage? AVG(COUNT(*)) – Aggregat in Aggregat – erlaubt SQL nicht. Deshalb wird zuerst eine „Zwischentabelle“ berechnet und daraus dann der Durchschnitt.'},
+u9:{hint:'Innen: Umsatz pro Besucher (JOIN Verkauf + Snacks, SUM(Menge * Preis), GROUP BY Besucher_ID). Außen: MAX(…) FROM ( … ) AS tbl.'},
+u10:{hint:'Innen: Anzahl Ausleihen pro Kunde. Außen: COUNT(*) … WHERE Anzahl > 1.'},
+d1:{hint:'Besucher_ID gibst du nicht an – sie ist AUTO_INCREMENT.'},
+d2:{hint:'UPDATE ... SET ... WHERE ... – OHNE WHERE würdest du alle Attraktionen ändern!'},
+d3:{hint:'Hier willst du WHERE ausnahmsweise NICHT. Preis = Preis * 1.1'},
+d4:{hint:"Datum in SQL: '2026-11-09' (JJJJ-MM-TT)."},
+d5:{hint:'ALTER TABLE ... ADD COLUMN ...'},
+d6:{hint:'DELETE FROM Besucher WHERE Besucher_ID = 1;',
+ expl:'Die Datenbank LEHNT ES AB (FOREIGN KEY constraint failed). Lena hat ein Ticket, Besuche und Käufe – in den Tabellen Tickets, Besuche und Verkauf zeigen Fremdschlüssel auf sie. Würde die DB sie löschen, würden diese Zeilen „ins Leere“ zeigen. Diese Überwachung = referenzielle Integrität. Richtiges Vorgehen: zuerst die abhängigen Zeilen löschen (Verkauf, Besuche, Tickets), dann erst den Besucher.'},
+d7:{hint:'Muster: CREATE TABLE ... ( spalte TYP optionen, ..., PRIMARY KEY (...), FOREIGN KEY (...) REFERENCES Tabelle(...) );'},
+t1:{hint:'Den ganzen Block auf einmal ausführen und das Ergebnis des letzten SELECT anschauen.',
+ expl:'In Verkauf_Log hast du selbst nichts eingefügt – und trotzdem steht dort eine Zeile. Der Trigger hat sie nach dem INSERT in Verkauf automatisch eingefügt. NEW.Verkauf_ID = Wert aus der gerade eingefügten Zeile.'},
+t2:{hint:'Führe zuerst nur die ersten 3 Zeilen aus, dann ROLLBACK und SELECT.',
+ expl:'In MariaDB schreibt man START TRANSACTION (oder BEGIN), in SQLite BEGIN TRANSACTION. Das Prinzip ist gleich: Solange du kein COMMIT gibst, kannst du mit ROLLBACK alles zurücknehmen. Die Sandbox zeigt das Ergebnis des letzten SELECT → die alten Preise.'},
+m1:{hint:'3 Tabellen: Besucher – Besuche – Attraktion. Ausgabe: Vorname, Nachname, Name der Attraktion.'},
+m2:{hint:'Vorname, Nachname, Ticket_ID – Besucher JOIN Tickets.'},
+m3:{hint:'Vorname, Nachname, Snack-Name – Besucher, Verkauf, Snacks.'},
+m4:{hint:'LIKE'},
+m5:{hint:'Irgendwo im Namen → % auf beiden Seiten.'},
+m6:{hint:'„Wie oft“ = Summe der Menge (nicht Anzahl der Zeilen!). Snacks JOIN Verkauf, GROUP BY Snack.',
+ expl:'Die offizielle Lösung schreibt SELECT s.*, SUM(v.Menge) ... GROUP BY s.Snack_ID. Das erlaubt MariaDB/MySQL, weil aus Snack_ID (PK) der Rest der Zeile eindeutig folgt. Die Prüfung hier vergleicht nur Name + Summe, schreib also SELECT s.Name, SUM(v.Menge). Achtung: COUNT(*) würde die Anzahl der VERKÄUFE liefern, nicht der STÜCKE – Popcorn hätte 2 statt 4.'},
+m7:{hint:'GROUP BY Tickettyp'},
+m8:{hint:'AVG'},
+m9:{hint:'Menge steht in Verkauf, Preis in Snacks → JOIN, dann SUM(Menge * Preis).'},
+m10:{hint:'Schau zuerst nach, welche Werte in Status tatsächlich stehen!',
+ expl:"Offizielle Lösung: WHERE Status = 'geschlossen'. Aber in der Tabelle gibt es KEINE Attraktion mit „geschlossen“ – das Geisterhaus hat „Wartung“. Das Ergebnis der offiziellen Lösung ist also leer. In der Klausur schreibst du die Lösung nach der Aufgabe (= 'geschlossen'), weil du auf Papier die Daten nicht siehst. Die Prüfung hier akzeptiert alle drei Varianten."},
+m11:{hint:'Mindestalter ≤ 9',
+ expl:"Die offizielle Lösung prüft nur das Alter. Besser (und von der Prüfung akzeptiert) ist zusätzlich Status = 'geöffnet' – hier kommt dasselbe heraus, weil das Geisterhaus Mindestalter 10 hat."},
+m12:{hint:'JOIN über Besuche + WHERE auf Vorname UND Nachname.'},
+f1:{hint:'LEFT(Zeichenkette, Anzahl) → LEFT(Nachname, 3)'},
+f2:{hint:'RIGHT(Zeichenkette, Anzahl)'},
+f3:{hint:'Kombinieren: CONCAT(LEFT(Vorname, 1), LEFT(Nachname, 1)) AS Initialen'},
+f4:{hint:'HOUR(Uhrzeit)'},
+f5:{hint:'Gruppieren geht auch nach einer Funktion: GROUP BY HOUR(Uhrzeit)'},
+f6:{hint:'WHERE MINUTE(Uhrzeit) = 30'},
+f7:{hint:'WEEKDAY(Datum). Der 8. 11. 2026 war ein Sonntag → 6, der 9. 11. ein Montag → 0.'},
+f8:{hint:'WHERE DAY(Datum) = 9 AND MONTH(Datum) = 11'},
+f9:{hint:'IHK-Schreibweise: DATEDIFF(DAY, Ausleihdatum, Rueckgabedatum). MariaDB: DATEDIFF(Rueckgabedatum, Ausleihdatum). Nicht vergessen: nur zurückgegebene → IS NOT NULL.',
+ expl:'Beide Versionen liefern dasselbe Ergebnis. Achtung auf die REIHENFOLGE: IHK/SQL Server = (Einheit, VON, BIS). MariaDB = (BIS, VON) – umgekehrt und ohne Einheit, immer in Tagen.'},
+f10:{hint:'IHK: DATEADD(DAY, 14, Ausleihdatum). MariaDB: DATE_ADD(Ausleihdatum, INTERVAL 14 DAY).'},
+f11:{hint:'AVG(Preis), STDDEV(Preis), VARIANCE(Preis) – alles in einem SELECT.',
+ expl:'Der Durchschnitt ist 3,85 €. Die Standardabweichung ≈ 0,68 € sagt: „typischerweise weicht der Preis um etwa 68 Cent vom Durchschnitt ab“. Die Varianz ist die Abweichung zum Quadrat (≈ 0,47) – allein schlecht lesbar, deshalb nimmt man eher die Standardabweichung.'}
+};
+
+(function(){
+const W = [
+'DBS = Datenbasis (die Daten selbst) + DBMS (das Programm, das den Zugriff steuert).',
+'MySQL ist ein DBMS – ein Programm. Datenbasis sind erst die Daten, die es verwaltet.',
+'Ja, genauso wie MySQL, MariaDB, Oracle, MS SQL Server.',
+'Genau das: Eine Änderung der Speicherung (internes Schema) darf die Anwendungen (externes Schema) nicht kaputtmachen.',
+'Im Gegenteil – dazwischen liegt das konzeptionelle Schema, damit sie NICHT voneinander abhängen.',
+'Intern = physische Ebene: Speicherung, Indizes, Sortierung.',
+'Konzeptionelles Schema = Struktur (was existiert und wie es zusammenhängt), nicht der Inhalt.',
+'Die Buchhaltung sieht andere Daten als das Lager – jeder hat seine Sicht (View).',
+'Bei Client-Server liegen DB und DBMS auf dem Server, der Client hat nur die Oberfläche (Frontend).',
+'Deshalb viel Netzwerkverkehr – jeder Client holt sich die Daten zu sich.',
+'Baum: Jedes Kind hat genau ein Elternteil.',
+'Erweiterung des hierarchischen Modells – mehrere Eltern.',
+'Entitätstyp = Rechteck. Ellipse = Attribut. Raute = Beziehung.',
+'Raute = Beziehung.',
+'Kardinalitäten: 1:1, 1:n, m:n.',
+'Das ER-Modell entsteht in der KONZEPTIONELLEN Phase. In der logischen Phase wird es ins relationale Modell umgewandelt und normalisiert.',
+'Unterstrichenes Attribut = identifiziert die Entität (z. B. KundenNr).',
+'Z. B. „Besucher besucht Attraktion“ hat das Attribut Uhrzeit.',
+'Eine Tabelle kann 0, 1 oder mehrere Fremdschlüssel haben (Snacks hat keinen).',
+'Eindeutigkeit ist die erste Anforderung an den PK.',
+'Er kann zusammengesetzt sein, z. B. BestellNr + Pos.',
+'Die Zwischentabelle/Kreuztabelle löst m:n in zwei 1:n auf. (Das Buch nennt eine seltene Ausnahme – ein Spiel mit genau 2 Mannschaften.)',
+'Umgekehrt! Der PK der „1“-Seite geht als FK auf die „n“-Seite. (Besucher_ID → in Tickets.)',
+'Deshalb kann man Lena nicht löschen, solange Tickets/Besuche/Verkauf auf sie zeigen.',
+'INT → INT, sonst könnte man sie nicht vergleichen.',
+'Genau so lautet die Definition.',
+'Atomar = in einer Zelle nur ein Wert, keine Listen wie „M107, AT286“.',
+'Die 2. NF betrifft den zusammengesetzten Schlüssel – nichts darf nur von einem Teil davon abhängen.',
+'Transitiv: PK → Ziel → Land. Das Land gehört in eine eigene Tabelle.',
+'Es gibt auch BCNF, 4. NF und 5. NF – in der Praxis macht man aber die 1.–3.',
+'Den letzten Mitarbeiter einer Abteilung löschen → die Infos zur Abteilung verschwinden mit.',
+'Inkonsistenz = Widersprüche in den Daten = Fehler. Ziel ist Konsistenz.',
+'Viele kleine Tabellen = viele JOINs = langsamere Abfragen.',
+'DCL = Rechte. DDL = Struktur, DML = Daten, TCL = Transaktionen.',
+'CREATE/ALTER/DROP = DDL (Data Definition Language).',
+'Transaction Control Language.',
+'VARCHAR(50) = max. 50 Zeichen, belegt nur so viel Platz wie nötig. CHAR(n) = feste Länge.',
+'% = beliebig viele Zeichen (auch 0), _ = genau ein Zeichen.',
+'COUNT(spalte) zählt NULL nicht. COUNT(*) zählt alle Zeilen. Deshalb liefert LEFT JOIN + COUNT(b.ID) eine 0.',
+'DELETE löscht Zeilen. Einen einzelnen Wert „löscht“ man mit UPDATE … SET spalte = NULL.',
+'Die klassische Falle – prüfe immer das WHERE.',
+'In HAVING. WHERE filtert Zeilen VOR dem Gruppieren, HAVING Gruppen NACH dem Gruppieren.',
+'Man muss IS NULL / IS NOT NULL schreiben. „= NULL“ liefert nie etwas.',
+'BETWEEN schließt die Grenzen ein (≥ 10 AND ≤ 30).',
+'Standard ist ASC = aufsteigend. Absteigend musst du DESC schreiben.',
+'LEFT nimmt die ersten 5 Zeichen von links.',
+'Laut IHK-Spickzettel und MariaDB: Montag = 0, Sonntag = 6.',
+'Standardabweichung = wie stark die Werte typischerweise vom Durchschnitt abweichen.',
+'Sonst meldet MariaDB „Every derived table must have its own alias“.',
+'Nur die „Paare“, die ein Gegenstück haben.',
+'Das ist FULL JOIN. RIGHT JOIN = alle aus der RECHTEN + passende aus der linken.',
+'Jeder mit jedem: 8 Besucher × 6 Snacks = 48 Zeilen.',
+'Deshalb das Geisterhaus mit 0 Besuchen.',
+'MySQL/MariaDB haben keinen FULL JOIN – man setzt ihn aus LEFT JOIN UNION RIGHT JOIN zusammen (wie auf der Folie).',
+'Regel Nr. 1 aus dem Buch.',
+'= funktioniert nur für EINEN Wert.',
+'Dazu noch EXISTS.',
+'Sie dürfen – Verschachteln ist üblich (siehe Volkswagen-Beispiel oder Übung U4).',
+'GRANT gibt, REVOKE nimmt.',
+'Sonst darf er die Rechte nur benutzen, aber nicht weitergeben.',
+'% = von überall (Platzhalter). Nur lokal = \'localhost\'.',
+'*.* = alle Datenbanken . alle Tabellen.',
+'Ein Reporting-Benutzer bekommt nur SELECT.',
+'CALL name(parameter);',
+'Ein Trigger startet VON SELBST bei INSERT/UPDATE/DELETE auf der Tabelle. Er wird nie von Hand aufgerufen.',
+'Wenn du nichts schreibst, ist es IN.',
+'In der Prozedur stehen Semikolons – sonst würde der Client dem Server den Befehl nur halb schicken.',
+'trigger_time + trigger_event.',
+'Neue Werte = NEW. OLD gibt es nur bei UPDATE und DELETE (alter Wert).',
+'Das A von ACID.',
+'Nach COMMIT! ROLLBACK nimmt die Änderungen zurück.',
+'Nur InnoDB (laut Folien).',
+'Das I von ACID.',
+'„Not only SQL“.',
+'Neo4j – Knoten und Kanten.',
+'MongoDB = Dokumentendatenbank (JSON/BSON).',
+'MySQL ist eine relationale Datenbank.',
+'Relationale DBs skalieren typischerweise vertikal (stärkerer Server).',
+'BASE = Basically Available, Soft state, Eventually consistent.',
+'Sie gehören zu NoSQL (Cassandra).',
+'Sie sind NoSQL-Datenbanken.'
+];
+if(window.QUIZ){ if(W.length!==window.QUIZ.length) console.warn('QUIZ DE length mismatch', W.length, window.QUIZ.length);
+  window.QUIZ.forEach((q,i)=>{ if(W[i]) q.wde=W[i]; }); }
+const G = ['geordnete Sammlung von Daten','die gespeicherten Daten selbst','Programm, das die Daten verwaltet (MariaDB, MySQL …)','Datenbasis + DBMS','3 Schichten von ANSI/SPARC','DB und DBMS auf dem Server',
+'ein konkretes Objekt (Herr Maier)','Gruppe gleichartiger Entitäten (Person) → im ERM Rechteck','Eigenschaft einer Entität, im ERM Ellipse, in der Tabelle Spalte','Verbindung zweier Entitäten, im ERM Raute','1:1, 1:n, m:n','grafischer Datenentwurf (Peter Chen, 1976)',
+'Tabelle in einer relationalen DB','eine Zeile der Tabelle','eine Spalte der Tabelle','identifiziert eine Zeile eindeutig','Verweis auf den PK einer anderen Tabelle','PK aus mehreren Spalten','ID ohne Bedeutung, nur zur Identifikation','löst m:n in 2× 1:n auf','FK muss auf einen existierenden PK zeigen',
+'dieselbe Information mehrfach gespeichert','die Daten sind widerspruchsfrei','Fehler, die durch Redundanz entstehen','Tabellen zerlegen gegen Redundanz','in einer Zelle nur ein unteilbarer Wert','A → B → C (indirekte Abhängigkeit)',
+'SELECT …','SELECT innerhalb eines anderen Befehls','das, was in WHERE / HAVING steht','COUNT, SUM, AVG, MIN, MAX','GROUP BY','ORDER BY … ASC / DESC','JOIN','jeder mit jedem (CROSS JOIN)','% und _ bei LIKE',
+'INT, VARCHAR, DECIMAL, DATE …','INT','DECIMAL(6,2) – für Geld','VARCHAR, CHAR','NOT NULL, UNIQUE, PRIMARY KEY …','CREATE USER','GRANT / REVOKE','REVOKE … FROM','Paket von Rechten für mehrere Benutzer',
+'gespeicherter SQL-Block, Aufruf mit CALL','läuft automatisch bei INSERT/UPDATE/DELETE','„alles oder nichts“','COMMIT / ROLLBACK','ACID','mehr Server / stärkerer Server','Grundlage von Key-Value-DBs','JSON-Datensatz in MongoDB','Graphdatenbanken','beschleunigt das Suchen, verlangsamt das Schreiben'];
+if(window.GLOSSAR){ window.GLOSSAR.forEach((g,i)=>{ if(G[i]) g[4]=G[i]; }); }
+})();
+
+</script>
+<script>
 /* ===== Lernwerkstatt Datenbanken – Engine ===== */
 (function(){
 const G = (typeof window!=='undefined') ? window : globalThis;
 let SQL = null;               // sql.js Modul
+/* --- Sprache / jazyk --- */
+let LANG='cz'; try{ const l=localStorage.getItem('dbLang'); if(l==='de'||l==='cz') LANG=l; }catch(e){}
+const I18N={
+cz:{dbskip:'CREATE/DROP DATABASE v pískovišti přeskakuji – databáze už existuje.',
+ mariaonly:'Tenhle příkaz zná jen MariaDB/MySQL (uživatelé, práva, procedury). Pískoviště běží na SQLite, proto ho nespustí. Řešení si porovnej s ukázkou na papíře – v Klausur se to píše ručně.',
+ e_alter:'„Alter“ je v MySQL/MariaDB rezervované slovo (ALTER TABLE…). Sloupec se proto musí psát v obrácených apostrofech: `Alter` (německá klávesnice: Shift + klávesa ´ vpravo vedle ß, pak mezerník).',
+ e_col:'Sloupec $1 neexistuje. Zkontroluj překlep, velká/malá písmena u aliasu a jestli je sloupec opravdu v té tabulce (podívej se do schématu).',
+ e_tab:'Tabulka $1 neexistuje. Překlep? (Tickets × Ticket, Snacks × Snack, Besuche × Besuch)',
+ e_syn:'Syntaktická chyba poblíž „$1“. Častá příčina: chybí čárka, uvozovka, závorka nebo je klíčové slovo na špatném místě.',
+ e_fk:'FOREIGN KEY constraint failed – porušená referenční integrita: na tenhle záznam ukazuje cizí klíč z jiné tabulky, nebo vkládáš cizí klíč, který neexistuje.',
+ e_amb:'Sloupec $1 je nejednoznačný – existuje ve víc tabulkách. Napiš před něj alias tabulky, např. b.$1.',
+ e_agg:'Agregační funkce (COUNT, SUM…) je na špatném místě – podmínka na skupinu patří do HAVING, ne do WHERE.',
+ e_nn:'$1 je NOT NULL – musíš vyplnit hodnotu.', e_uni:'Hodnota už existuje a sloupec musí být unikátní (např. primární klíč).',
+ e_inc:'Příkaz není dokončený – chybí konec (závorka, uvozovka, END?).', e_exists:'Tabulka $1 už existuje.',
+ noresult:'Dotaz nevrátil žádnou tabulku. (Napsal jsi SELECT?)', order:'Řádky sedí, ale POŘADÍ ne. Zkontroluj ORDER BY (ASC/DESC? podle správného sloupce?).',
+ correct:'Správně! ✓', extra:(u,s)=>'Data sedí ✓ – ale máš navíc sloupce ('+u+' místo '+s+'). Pokud zadání chce konkrétní sloupce, vypiš jen ty. Jinak je to v pořádku.',
+ cols:(u,s)=>'Máš '+u+' sloupců, řešení má '+s+'. ', missing:(u,s)=>'To, co máš, je správně – ale chybí sloupce ('+u+' místo '+s+'). Přečti zadání znovu: co všechno se má zobrazit?',
+ rows:(u,s)=>'Počet řádků nesedí: máš '+u+', má být '+s+'. Typicky: chybějící/nadbytečná podmínka WHERE, INNER vs. LEFT JOIN, nebo GROUP BY.',
+ vals:(u)=>'Počet řádků sedí ('+u+'), ale hodnoty se liší. Zkontroluj podmínku, výpočet nebo jestli bereš správný sloupec.',
+ interr:'Interní chyba řešení: ', verifyerr:'Po tvém příkazu data nevypadají jako po správném řešení. ',
+ notable:'(žádná tabulka)', rowsn:' řádků', okdone:'OK – příkaz proveden. Změněno řádků: ',
+ done:'hotovo', ph:'Sem napiš svůj SQL…', run:'▶ Spustit', check:'✓ Zkontrolovat', hint:'💡 Nápověda', sol:'👁 Řešení', solrun:'▶ spustit řešení', variants:'Uznávají se i varianty:',
+ showstate:'Zobrazuji stav po tvém příkazu: ', writefirst:'Nejdřív něco napiš 🙂', tryit:'▶ Vyzkoušet', tosb:'↗ do pískoviště',
+ alltopics:'Všechna témata', qok:'Správně. ', qbad:'Špatně. ', qis:'Je to ', qscore:(o,k,n)=>o+' / '+k+' správně (z '+n+' otázek)',
+ reset:n=>'Databáze '+n+' obnovena do původního stavu.', progress:(d,n)=>d+' / '+n+' cvičení hotovo',
+ timer:'▶ Spustit časomíru (60 min)', stop:'■ Zastavit', timeup:'⏱ Čas vypršel – odevzdej!',
+ s_saved:'☁️ uloženo v cloudu', s_err:'💾 cloud: chyba – ukládám jen v zařízení', s_sync:'☁️ synchronizováno', s_off:'💾 cloud teď nedostupný – ukládám v zařízení',
+ s_local:'💾 pokrok se ukládá jen v tomto zařízení', s_conn:'☁️ připojuji cloud…', s_wait:'💾 cloud zatím nedostupný – ukládám v zařízení',
+ smaller:'menší', bigger:'větší', ready:'SQL motor připraven ✓', fail:'SQL motor se nenačetl: '},
+de:{dbskip:'CREATE/DROP DATABASE wird in der Sandbox übersprungen – die Datenbank existiert schon.',
+ mariaonly:'Diesen Befehl kennt nur MariaDB/MySQL (Benutzer, Rechte, Prozeduren). Die Sandbox läuft mit SQLite und kann ihn nicht ausführen. Vergleiche deine Lösung mit dem Beispiel – in der Klausur schreibst du das sowieso von Hand.',
+ e_alter:'„Alter“ ist in MySQL/MariaDB ein reserviertes Wort (ALTER TABLE …). Die Spalte muss deshalb in Backticks stehen: `Alter` (deutsche Tastatur: Umschalt + Taste ´ rechts neben ß, dann Leertaste).',
+ e_col:'Die Spalte $1 gibt es nicht. Prüfe Tippfehler, Groß-/Kleinschreibung beim Alias und ob die Spalte wirklich in dieser Tabelle steht (schau ins Schema).',
+ e_tab:'Die Tabelle $1 gibt es nicht. Tippfehler? (Tickets × Ticket, Snacks × Snack, Besuche × Besuch)',
+ e_syn:'Syntaxfehler in der Nähe von „$1“. Häufige Ursache: Komma, Anführungszeichen oder Klammer fehlt, oder ein Schlüsselwort steht an der falschen Stelle.',
+ e_fk:'FOREIGN KEY constraint failed – referenzielle Integrität verletzt: Auf diesen Datensatz zeigt ein Fremdschlüssel aus einer anderen Tabelle, oder du fügst einen Fremdschlüssel ein, den es nicht gibt.',
+ e_amb:'Die Spalte $1 ist mehrdeutig – sie existiert in mehreren Tabellen. Schreib den Tabellen-Alias davor, z. B. b.$1.',
+ e_agg:'Die Aggregatfunktion (COUNT, SUM …) steht an der falschen Stelle – eine Bedingung auf Gruppen gehört in HAVING, nicht in WHERE.',
+ e_nn:'$1 ist NOT NULL – du musst einen Wert angeben.', e_uni:'Der Wert existiert schon, die Spalte muss eindeutig sein (z. B. Primärschlüssel).',
+ e_inc:'Der Befehl ist nicht vollständig – es fehlt das Ende (Klammer, Anführungszeichen, END?).', e_exists:'Die Tabelle $1 existiert schon.',
+ noresult:'Die Abfrage hat keine Tabelle geliefert. (Hast du SELECT geschrieben?)', order:'Die Zeilen stimmen, aber die REIHENFOLGE nicht. Prüfe ORDER BY (ASC/DESC? die richtige Spalte?).',
+ correct:'Richtig! ✓', extra:(u,s)=>'Die Daten stimmen ✓ – aber du hast zusätzliche Spalten ('+u+' statt '+s+'). Wenn die Aufgabe bestimmte Spalten verlangt, gib nur diese aus. Sonst ist es in Ordnung.',
+ cols:(u,s)=>'Du hast '+u+' Spalten, die Lösung hat '+s+'. ', missing:(u,s)=>'Was du hast, ist richtig – aber es fehlen Spalten ('+u+' statt '+s+'). Lies die Aufgabe nochmal: Was soll alles angezeigt werden?',
+ rows:(u,s)=>'Die Zeilenanzahl stimmt nicht: du hast '+u+', es sollen '+s+' sein. Typisch: fehlende/überflüssige WHERE-Bedingung, INNER statt LEFT JOIN oder GROUP BY.',
+ vals:(u)=>'Die Zeilenanzahl stimmt ('+u+'), aber die Werte sind anders. Prüfe die Bedingung, die Berechnung oder ob du die richtige Spalte nimmst.',
+ interr:'Interner Fehler der Lösung: ', verifyerr:'Nach deinem Befehl sehen die Daten nicht so aus wie nach der richtigen Lösung. ',
+ notable:'(keine Tabelle)', rowsn:' Zeilen', okdone:'OK – Befehl ausgeführt. Geänderte Zeilen: ',
+ done:'erledigt', ph:'Hier dein SQL schreiben …', run:'▶ Ausführen', check:'✓ Prüfen', hint:'💡 Tipp', sol:'👁 Lösung', solrun:'▶ Lösung ausführen', variants:'Diese Varianten werden auch akzeptiert:',
+ showstate:'Ich zeige den Stand nach deinem Befehl: ', writefirst:'Schreib zuerst etwas 🙂', tryit:'▶ Ausprobieren', tosb:'↗ in die Sandbox',
+ alltopics:'Alle Themen', qok:'Richtig. ', qbad:'Falsch. ', qis:'Die Aussage ist ', qscore:(o,k,n)=>o+' / '+k+' richtig (von '+n+' Fragen)',
+ reset:n=>'Datenbank '+n+' wurde zurückgesetzt.', progress:(d,n)=>d+' / '+n+' Übungen erledigt',
+ timer:'▶ Timer starten (60 min)', stop:'■ Stopp', timeup:'⏱ Zeit ist um – abgeben!',
+ s_saved:'☁️ in der Cloud gespeichert', s_err:'💾 Cloud: Fehler – speichere nur auf dem Gerät', s_sync:'☁️ synchronisiert', s_off:'💾 Cloud gerade nicht erreichbar – speichere auf dem Gerät',
+ s_local:'💾 Fortschritt wird nur auf diesem Gerät gespeichert', s_conn:'☁️ verbinde Cloud …', s_wait:'💾 Cloud noch nicht erreichbar – speichere auf dem Gerät',
+ smaller:'kleiner', bigger:'größer', ready:'SQL-Engine bereit ✓', fail:'SQL-Engine konnte nicht laden: '}
+};
+const T=(k,...a)=>{ const v=(I18N[LANG]&&I18N[LANG][k]!==undefined)?I18N[LANG][k]:I18N.cz[k]; return typeof v==='function'? v(...a) : v; };
+const EXT=(ex,id,f)=>{ if(LANG==='de' && G.EX_DE && G.EX_DE[id] && G.EX_DE[id][f]!==undefined) return G.EX_DE[id][f]; return ex[f]; };
 const sandboxDBs = {};        // persistente DBs fürs Pískoviště
 
 /* --- MySQL/MariaDB-Funktionen, die SQLite nicht kennt --- */
@@ -1988,7 +3618,41 @@ function addFns(db){
   db.create_function('CURDATE', ()=>today());
   db.create_function('CURTIME', ()=>nowTime());
   db.create_function('NOW', ()=>today()+' '+nowTime());
-  db.create_function('DATEDIFF', (a,b)=>{const p=dp(a),q=dp(b);if(!p||!q)return null;return Math.round((Date.UTC(p[1],p[2]-1,p[3])-Date.UTC(q[1],q[2]-1,q[3]))/86400000);});
+  // DATEDIFF: MariaDB DATEDIFF(ende, start) in Tagen  |  IHK/SQL-Server DATEDIFF(DAY, start, ende)
+  const toMs = s => { if(s==null) return null; const m=String(s).match(/^(\d{4})-(\d{2})-(\d{2})(?:[ T](\d{2}):(\d{2})(?::(\d{2}))?)?/); return m? Date.UTC(+m[1],m[2]-1,+m[3],+(m[4]||0),+(m[5]||0),+(m[6]||0)) : null; };
+  const fmt = (ms, withTime) => { const d=new Date(ms); const ds=d.getUTCFullYear()+'-'+pad(d.getUTCMonth()+1)+'-'+pad(d.getUTCDate()); return withTime? ds+' '+pad(d.getUTCHours())+':'+pad(d.getUTCMinutes())+':'+pad(d.getUTCSeconds()) : ds; };
+  const UNIT={DAY:86400000,HOUR:3600000,MINUTE:60000};
+  db.create_function('DATEDIFF', (a,b)=>{ const x=toMs(a),y=toMs(b); if(x==null||y==null) return null; const day=ms=>{const d=new Date(ms);return Date.UTC(d.getUTCFullYear(),d.getUTCMonth(),d.getUTCDate());}; return Math.round((day(x)-day(y))/86400000); });
+  db.create_function('DATEDIFF_IHK', (part,a,b)=>{
+    part=String(part).toUpperCase(); const x=toMs(a), y=toMs(b); if(x==null||y==null) return null;
+    if(part==='YEAR') return new Date(y).getUTCFullYear()-new Date(x).getUTCFullYear();
+    if(part==='MONTH') return (new Date(y).getUTCFullYear()-new Date(x).getUTCFullYear())*12+(new Date(y).getUTCMonth()-new Date(x).getUTCMonth());
+    return Math.trunc((y-x)/(UNIT[part]||86400000));
+  });
+  // DATEADD(DAY, 14, datum) – IHK/SQL-Server-Schreibweise
+  db.create_function('DATEADD', (part,n,d)=>{
+    const x=toMs(d); if(x==null) return null; part=String(part).toUpperCase(); n=Number(n);
+    const dt=new Date(x), hasTime=/\d{2}:\d{2}/.test(String(d));
+    if(part==='YEAR') dt.setUTCFullYear(dt.getUTCFullYear()+n);
+    else if(part==='MONTH') dt.setUTCMonth(dt.getUTCMonth()+n);
+    else dt.setTime(dt.getTime()+n*(UNIT[part]||86400000));
+    return fmt(dt.getTime(), hasTime || part==='HOUR' || part==='MINUTE');
+  });
+  const tp = s => { if(s==null) return null; const m=String(s).match(/(\d{1,2}):(\d{2})(?::(\d{2}))?/); return m? [+m[1],+m[2],+(m[3]||0)] : null; };
+  db.create_function('HOUR',   s=>{const t=tp(s);return t?t[0]:null;});
+  db.create_function('MINUTE', s=>{const t=tp(s);return t?t[1]:null;});
+  db.create_function('SECOND', s=>{const t=tp(s);return t?t[2]:null;});
+  db.create_function('WEEKDAY', s=>{const p=dp(s);if(!p)return null;return (new Date(Date.UTC(p[1],p[2]-1,p[3])).getUTCDay()+6)%7;}); // Montag = 0
+  // Statistik (wie MariaDB: Grundgesamtheit, also durch n teilen)
+  if(typeof db.create_aggregate==='function'){
+    const varAgg = { init:()=>({n:0,s:0,q:0}), step:(st,v)=>{ if(v!=null){ v=Number(v); st.n++; st.s+=v; st.q+=v*v; } return st; } };
+    db.create_aggregate('VARIANCE', Object.assign({}, varAgg, {finalize:st=> st.n? st.q/st.n-(st.s/st.n)**2 : null}));
+    db.create_aggregate('VAR_POP',  Object.assign({}, varAgg, {finalize:st=> st.n? st.q/st.n-(st.s/st.n)**2 : null}));
+    db.create_aggregate('STDDEV',   Object.assign({}, varAgg, {finalize:st=> st.n? Math.sqrt(Math.max(0,st.q/st.n-(st.s/st.n)**2)) : null}));
+    db.create_aggregate('STD',      Object.assign({}, varAgg, {finalize:st=> st.n? Math.sqrt(Math.max(0,st.q/st.n-(st.s/st.n)**2)) : null}));
+    db.create_aggregate('CORR', { init:()=>({n:0,x:0,y:0,xx:0,yy:0,xy:0}), step:(st,a,b)=>{ if(a!=null&&b!=null){ a=+a;b=+b; st.n++; st.x+=a; st.y+=b; st.xx+=a*a; st.yy+=b*b; st.xy+=a*b; } return st; },
+      finalize:st=>{ if(st.n<2) return null; const c=st.xy/st.n-(st.x/st.n)*(st.y/st.n), vx=st.xx/st.n-(st.x/st.n)**2, vy=st.yy/st.n-(st.y/st.n)**2; return (vx>0&&vy>0)? c/Math.sqrt(vx*vy) : null; } });
+  }
 }
 
 /* --- MariaDB-Schreibweise → SQLite übersetzen --- */
@@ -2003,7 +3667,7 @@ function prep(sql){
     .replace(/\u2026/g,'...');
   s = s.replace(/^\s*DELIMITER\s+\S+\s*$/gim,'');
   s = s.replace(/^\s*USE\s+\w+\s*;?/gim,'');
-  if(/^\s*(CREATE|DROP)\s+DATABASE/im.test(s)){ s=s.replace(/^\s*(CREATE|DROP)\s+DATABASE[^;]*;?/gim,''); notes.push('CREATE/DROP DATABASE v pískovišti přeskakuji – databáze už existuje.'); }
+  if(/^\s*(CREATE|DROP)\s+DATABASE/im.test(s)){ s=s.replace(/^\s*(CREATE|DROP)\s+DATABASE[^;]*;?/gim,''); notes.push(T('dbskip')); }
   s = s.replace(/\bCHARACTER\s+SET\s+\w+/gi,'').replace(/\bCOLLATE\s+utf8\w*/gi,'').replace(/\bENGINE\s*=\s*\w+/gi,'').replace(/\bDEFAULT\s+CHARSET\s*=\s*\w+/gi,'');
   s = s.replace(/\bINT(EGER)?\b([^,()]*?)\bAUTO_INCREMENT\b/gi,'INTEGER$2');
   s = s.replace(/\bAUTO_INCREMENT\b/gi,'');
@@ -2013,6 +3677,9 @@ function prep(sql){
   s = s.replace(/\bLEFT\s*\(\s*([^(),]+?)\s*,\s*(\d+)\s*\)/gi,'substr($1,1,$2)');
   s = s.replace(/\bRIGHT\s*\(\s*([^(),]+?)\s*,\s*(\d+)\s*\)/gi,'substr($1,-$2)');
   s = s.replace(/DATE_ADD\s*\(\s*([^,]+?)\s*,\s*INTERVAL\s+(-?\d+)\s+(DAY|MONTH|YEAR)\s*\)/gi,"date($1,'+$2 $3')");
+  s = s.replace(/DATE_SUB\s*\(\s*([^,]+?)\s*,\s*INTERVAL\s+(\d+)\s+(DAY|MONTH|YEAR)\s*\)/gi,"date($1,'-$2 $3')");
+  s = s.replace(/\bDATEDIFF\s*\(\s*(DAY|MONTH|YEAR|HOUR|MINUTE)\s*,/gi,"DATEDIFF_IHK('$1',");
+  s = s.replace(/\bDATEADD\s*\(\s*(DAY|MONTH|YEAR|HOUR|MINUTE)\s*,/gi,"DATEADD('$1',");
   s = s.replace(/^\s*SHOW\s+TABLES\s*;?/gim,"SELECT name AS Tabellen FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%';");
   s = s.replace(/^\s*SHOW\s+TRIGGERS\s*;?/gim,"SELECT name AS \"Trigger\", tbl_name AS Tabelle FROM sqlite_master WHERE type='trigger';");
   s = s.replace(/^\s*(DESCRIBE|DESC)\s+`?(\w+)`?\s*;?/gim,"SELECT name AS Spalte, type AS Datentyp, \"notnull\" AS NOT_NULL, pk AS PK FROM pragma_table_info('$2');");
@@ -2032,7 +3699,7 @@ function run(db, sqlText){
   const p = prep(sqlText);
   const only = splitStatements(p.sql).filter(st=>MARIADB_ONLY.test(st));
   if(only.length){
-    return {error:'Tenhle příkaz zná jen MariaDB/MySQL (uživatelé, práva, procedury). Pískoviště běží na SQLite, proto ho nespustí. Řešení si porovnej s ukázkou na papíře – v Klausur se to píše ručně.', notes:p.notes};
+    return {error:T('mariaonly'), notes:p.notes};
   }
   if(!p.sql.trim()) return {result:null, changed:0, notes:p.notes};
   try{
@@ -2049,17 +3716,10 @@ function run(db, sqlText){
 }
 function translateErr(m){
   const t=[
-   [/near "Alter": syntax error/i,'„Alter“ je v MySQL/MariaDB rezervované slovo (ALTER TABLE…). Sloupec se proto musí psát v obrácených apostrofech: `Alter` (německá klávesnice: Shift + klávesa ´ vpravo vedle ß, pak mezerník).'],
-   [/no such column: (\S+)/i,'Sloupec $1 neexistuje. Zkontroluj překlep, velká/malá písmena u aliasu a jestli je sloupec opravdu v té tabulce (podívej se do schématu).'],
-   [/no such table: (\S+)/i,'Tabulka $1 neexistuje. Překlep? (Tickets × Ticket, Snacks × Snack, Besuche × Besuch)'],
-   [/near "(.*?)": syntax error/i,'Syntaktická chyba poblíž „$1“. Častá příčina: chybí čárka, uvozovka, závorka nebo je klíčové slovo na špatném místě.'],
-   [/FOREIGN KEY constraint failed/i,'FOREIGN KEY constraint failed – porušená referenční integrita: na tenhle záznam ukazuje cizí klíč z jiné tabulky, nebo vkládáš cizí klíč, který neexistuje.'],
-   [/ambiguous column name: (\S+)/i,'Sloupec $1 je nejednoznačný – existuje ve víc tabulkách. Napiš před něj alias tabulky, např. b.$1.'],
-   [/misuse of aggregate/i,'Agregační funkce (COUNT, SUM…) je na špatném místě – podmínka na skupinu patří do HAVING, ne do WHERE.'],
-   [/NOT NULL constraint failed: (\S+)/i,'$1 je NOT NULL – musíš vyplnit hodnotu.'],
-   [/UNIQUE constraint failed/i,'Hodnota už existuje a sloupec musí být unikátní (např. primární klíč).'],
-   [/incomplete input/i,'Příkaz není dokončený – chybí konec (závorka, uvozovka, END?).'],
-   [/table (\S+) already exists/i,'Tabulka $1 už existuje.']
+   [/near "Alter": syntax error/i,T('e_alter')],[/no such column: (\S+)/i,T('e_col')],[/no such table: (\S+)/i,T('e_tab')],
+   [/near "(.*?)": syntax error/i,T('e_syn')],[/FOREIGN KEY constraint failed/i,T('e_fk')],[/ambiguous column name: (\S+)/i,T('e_amb')],
+   [/misuse of aggregate/i,T('e_agg')],[/NOT NULL constraint failed: (\S+)/i,T('e_nn')],[/UNIQUE constraint failed/i,T('e_uni')],
+   [/incomplete input/i,T('e_inc')],[/table (\S+) already exists/i,T('e_exists')]
   ];
   for(const [re,cz] of t){ if(re.test(m)) return m.replace(re,cz) + '   ['+m+']'; }
   return m;
@@ -2105,7 +3765,7 @@ function setEqual(A,B){
   for(let i=0;i<a.length;i++) if(a[i]!==b[i]) return false; return true;
 }
 function compare(user, sol, ordered, orderCol){
-  if(!user) return {ok:false,msg:'Dotaz nevrátil žádnou tabulku. (Napsal jsi SELECT?)'};
+  if(!user) return {ok:false,msg:T('noresult')};
   const uc=user.columns.length, sc=sol.columns.length;
   if(uc===sc){
     if(rowsEqual(user,sol,ordered,orderCol)){
@@ -2114,26 +3774,26 @@ function compare(user, sol, ordered, orderCol){
         // Reihenfolge über die Sortierspalte prüfen
         const sk=sol.values.map(r=>cellKey(r[orderCol]));
         const uIdx=matchCols(user,{columns:[0],values:sol.values.map(r=>[r[orderCol]])});
-        if(uIdx){ const uk=user.values.map(r=>cellKey(r[uIdx[0]])); if(uk.join()!==sk.join()) return {ok:false,msg:'Řádky sedí, ale POŘADÍ ne. Zkontroluj ORDER BY (ASC/DESC?).'}; }
+        if(uIdx){ const uk=user.values.map(r=>cellKey(r[uIdx[0]])); if(uk.join()!==sk.join()) return {ok:false,msg:T('order')}; }
       }
-      return {ok:true,msg:'Správně! ✓'};
+      return {ok:true,msg:T('correct')};
     }
     if(!ordered) return {ok:false,msg:diffMsg(user,sol)};
-    if(setEqual(user,sol)) return {ok:false,msg:'Řádky sedí, ale POŘADÍ ne. Zkontroluj ORDER BY (ASC/DESC? podle správného sloupce?).'};
+    if(setEqual(user,sol)) return {ok:false,msg:T('order')};
     return {ok:false,msg:diffMsg(user,sol)};
   }
   if(uc>sc){
     const idx=matchCols(user,sol);
-    if(idx && rowsEqual(project(user,idx),sol,ordered,null)) return {ok:true,partial:true,msg:'Data sedí ✓ – ale máš navíc sloupce ('+uc+' místo '+sc+'). Pokud zadání chce konkrétní sloupce, vypiš jen ty. Jinak je to v pořádku.'};
-    return {ok:false,msg:'Máš '+uc+' sloupců, řešení má '+sc+'. '+diffMsg(user,sol)};
+    if(idx && rowsEqual(project(user,idx),sol,ordered,null)) return {ok:true,partial:true,msg:T('extra',uc,sc)};
+    return {ok:false,msg:T('cols',uc,sc)+diffMsg(user,sol)};
   }
   const idx=matchCols(sol,user);
-  if(idx && rowsEqual(user,project(sol,idx),ordered,null)) return {ok:false,partial:true,msg:'To, co máš, je správně – ale chybí sloupce ('+uc+' místo '+sc+'). Přečti zadání znovu: co všechno se má zobrazit?'};
-  return {ok:false,msg:'Máš '+uc+' sloupců, řešení má '+sc+'. '+diffMsg(user,sol)};
+  if(idx && rowsEqual(user,project(sol,idx),ordered,null)) return {ok:false,partial:true,msg:T('missing',uc,sc)};
+  return {ok:false,msg:T('cols',uc,sc)+diffMsg(user,sol)};
 }
 function diffMsg(u,s){
-  if(u.values.length!==s.values.length) return 'Počet řádků nesedí: máš '+u.values.length+', má být '+s.values.length+'. Typicky: chybějící/nadbytečná podmínka WHERE, INNER vs. LEFT JOIN, nebo GROUP BY.';
-  return 'Počet řádků sedí ('+u.values.length+'), ale hodnoty se liší. Zkontroluj podmínku, výpočet nebo jestli bereš správný sloupec.';
+  if(u.values.length!==s.values.length) return T('rows',u.values.length,s.values.length);
+  return T('vals',u.values.length);
 }
 function evalExercise(ex, userSQL){
   const sols = Array.isArray(ex.sol)? ex.sol : [ex.sol];
@@ -2147,12 +3807,12 @@ function evalExercise(ex, userSQL){
     const sdb=newDB(ex.db); const sr=run(sdb,s); let solRes=sr.result;
     if(ex.mode==='verify'){ solRes=run(sdb,ex.verify).result; }
     sdb.close();
-    if(sr.error){ return {ok:false,msg:'Interní chyba řešení: '+sr.error}; }
+    if(sr.error){ return {ok:false,msg:T('interr')+sr.error}; }
     const c=compare(userRes, solRes, ex.mode==='ordered', ex.orderCol);
     if(c.ok) return c;
     if(!best || (c.partial && !best.partial)) best=c;
   }
-  if(ex.mode==='verify') best.msg = 'Po tvém příkazu data nevypadají jako po správném řešení. '+best.msg;
+  if(ex.mode==='verify') best.msg = T('verifyerr')+best.msg;
   return best;
 }
 
@@ -2169,17 +3829,17 @@ function save(){ state.t=Date.now(); try{ localStorage.setItem(LS,JSON.stringify
 
 function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
 function table(res){
-  if(!res) return '<div class="muted">(žádná tabulka)</div>';
+  if(!res) return '<div class="muted">'+T('notable')+'</div>';
   let h='<div class="tbl-wrap"><table class="res"><thead><tr>'+res.columns.map(c=>'<th>'+esc(c)+'</th>').join('')+'</tr></thead><tbody>';
   for(const r of res.values) h+='<tr>'+r.map(v=>'<td>'+(v===null?'<span class="null">NULL</span>':esc(isNum(v)&&!Number.isInteger(v)?Math.round(v*1000)/1000:v))+'</td>').join('')+'</tr>';
-  return h+'</tbody></table></div><div class="muted small">'+res.values.length+' řádků</div>';
+  return h+'</tbody></table></div><div class="muted small">'+res.values.length+T('rowsn')+'</div>';
 }
 function showRun(out, r){
   let h='';
   if(r.notes&&r.notes.length) h+='<div class="note">'+r.notes.map(esc).join('<br>')+'</div>';
   if(r.error) h+='<div class="err">'+esc(r.error)+'</div>';
   else if(r.result) h+=table(r.result);
-  else h+='<div class="ok">OK – příkaz proveden. Změněno řádků: '+r.changed+'</div>';
+  else h+='<div class="ok">'+T('okdone')+r.changed+'</div>';
   out.innerHTML=h;
 }
 
@@ -2189,34 +3849,34 @@ function renderExercise(el){
   el.innerHTML=
    '<div class="ex-head"><span class="ex-id">'+id.toUpperCase()+(ex.pts?' · '+ex.pts+' P':'')+'</span>'+
    '<span class="ex-db">'+(ex.db==='park'?'DB Freizeitpark':'DB Bibliothek')+'</span>'+
-   '<label class="ex-done"><input type="checkbox" '+(state.done[id]?'checked':'')+'> hotovo</label></div>'+
-   '<div class="ex-de">'+esc(ex.de)+'</div>'+(ex.cz?'<div class="ex-cz">'+esc(ex.cz)+'</div>':'')+
-   '<textarea spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" placeholder="Sem napiš svůj SQL…">'+esc((state.notes&&state.notes[id])||'')+'</textarea>'+
-   '<div class="btns"><button class="b-run">▶ Spustit</button>'+(auto?'<button class="b-check">✓ Zkontrolovat</button>':'')+
-   (ex.hint?'<button class="b-hint ghost">💡 Nápověda</button>':'')+'<button class="b-sol ghost">👁 Řešení</button></div>'+
-   '<div class="hint hidden">'+esc(ex.hint||'')+'</div>'+
+   '<label class="ex-done"><input type="checkbox" '+(state.done[id]?'checked':'')+'> '+T('done')+'</label></div>'+
+   '<div class="ex-de">'+esc(ex.de)+'</div>'+(ex.cz&&LANG!=='de'?'<div class="ex-cz">'+esc(ex.cz)+'</div>':'')+
+   '<textarea spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" placeholder="'+T('ph')+'">'+esc((state.notes&&state.notes[id])||'')+'</textarea>'+
+   '<div class="btns"><button class="b-run">'+T('run')+'</button>'+(auto?'<button class="b-check">'+T('check')+'</button>':'')+
+   (EXT(ex,id,'hint')?'<button class="b-hint ghost">'+T('hint')+'</button>':'')+'<button class="b-sol ghost">'+T('sol')+'</button></div>'+
+   '<div class="hint hidden">'+esc(EXT(ex,id,'hint')||'')+'</div>'+
    '<div class="fb"></div><div class="out"></div>'+
-   '<div class="sol hidden"><pre>'+esc(Array.isArray(ex.sol)?ex.sol[0]:ex.sol)+'</pre>'+(Array.isArray(ex.sol)&&ex.sol.length>1?'<div class="muted small">Uznávají se i varianty:<pre>'+esc(ex.sol.slice(1).join('\n'))+'</pre></div>':'')+(ex.expl?'<div class="expl">'+esc(ex.expl)+'</div>':'')+'<button class="b-solrun ghost small">▶ spustit řešení</button></div>';
+   '<div class="sol hidden"><pre>'+esc(Array.isArray(ex.sol)?ex.sol[0]:ex.sol)+'</pre>'+(Array.isArray(ex.sol)&&ex.sol.length>1?'<div class="muted small">'+T('variants')+'<pre>'+esc(ex.sol.slice(1).join('\n'))+'</pre></div>':'')+(EXT(ex,id,'expl')?'<div class="expl">'+esc(EXT(ex,id,'expl'))+'</div>':'')+'<button class="b-solrun ghost small">'+T('solrun')+'</button></div>';
   const ta=el.querySelector('textarea'), out=el.querySelector('.out'), fb=el.querySelector('.fb'), cb=el.querySelector('.ex-done input');
   ta.addEventListener('input',()=>{state.notes[id]=ta.value; save();});
   ta.addEventListener('keydown',e=>{ if((e.ctrlKey||e.metaKey)&&e.key==='Enter'){ e.preventDefault(); (el.querySelector('.b-check')||el.querySelector('.b-run')).click(); } });
   cb.addEventListener('change',()=>{state.done[id]=cb.checked; save();});
-  el.querySelector('.b-run').onclick=()=>{ const db=newDB(ex.db); let r=run(db,ta.value); if(ex.mode==='verify'&&!r.error){ const v=run(db,ex.verify); r={result:v.result,changed:r.changed,notes:(r.notes||[]).concat(['Zobrazuji stav po tvém příkazu: '+ex.verify])}; } db.close(); showRun(out,r); fb.innerHTML=''; };
+  el.querySelector('.b-run').onclick=()=>{ const db=newDB(ex.db); let r=run(db,ta.value); if(ex.mode==='verify'&&!r.error){ const v=run(db,ex.verify); r={result:v.result,changed:r.changed,notes:(r.notes||[]).concat([T('showstate')+ex.verify])}; } db.close(); showRun(out,r); fb.innerHTML=''; };
   if(auto) el.querySelector('.b-check').onclick=()=>{
-    if(!ta.value.trim()){ fb.innerHTML='<div class="err">Nejdřív něco napiš 🙂</div>'; return; }
+    if(!ta.value.trim()){ fb.innerHTML='<div class="err">'+T('writefirst')+'</div>'; return; }
     const c=evalExercise(ex,ta.value);
     fb.innerHTML='<div class="'+(c.ok?(c.partial?'warn':'ok'):(c.partial?'warn':'err'))+'">'+esc(c.msg)+'</div>';
     if(c.ok){ state.done[id]=true; cb.checked=true; save(); }
     el.querySelector('.b-run').click(); fb.innerHTML='<div class="'+(c.ok?(c.partial?'warn':'ok'):(c.partial?'warn':'err'))+'">'+esc(c.msg)+'</div>';
   };
-  if(ex.hint) el.querySelector('.b-hint').onclick=()=>el.querySelector('.hint').classList.toggle('hidden');
+  if(EXT(ex,id,'hint')) el.querySelector('.b-hint').onclick=()=>el.querySelector('.hint').classList.toggle('hidden');
   el.querySelector('.b-sol').onclick=()=>el.querySelector('.sol').classList.toggle('hidden');
   el.querySelector('.b-solrun').onclick=()=>{ const db=newDB(ex.db); let r=run(db,Array.isArray(ex.sol)?ex.sol[0]:ex.sol); if(ex.mode==='verify'&&!r.error){ r={result:run(db,ex.verify).result,changed:r.changed}; } db.close(); showRun(out,r); };
 }
 
 function renderDemo(el){
   const code=el.textContent.replace(/^\n+|\s+$/g,''); const dbn=el.dataset.db||'park';
-  el.innerHTML='<pre class="code">'+esc(code)+'</pre><div class="btns"><button class="small">▶ Vyzkoušet</button><button class="small ghost b-copy">↗ do pískoviště</button></div><div class="out"></div>';
+  el.innerHTML='<pre class="code">'+esc(code)+'</pre><div class="btns"><button class="small">'+T('tryit')+'</button><button class="small ghost b-copy">'+T('tosb')+'</button></div><div class="out"></div>';
   const out=el.querySelector('.out');
   el.querySelector('button').onclick=()=>{ const db=newDB(dbn); showRun(out,run(db,code)); db.close(); };
   el.querySelector('.b-copy').onclick=()=>{ document.getElementById('sb-db').value=dbn; document.getElementById('sb-sql').value=code; location.hash='#sandbox'; };
@@ -2227,7 +3887,7 @@ function renderQuiz(){
   const box=document.getElementById('quiz-box'); if(!box||!G.QUIZ) return;
   const filt=document.getElementById('quiz-filter');
   const cats=[...new Set(G.QUIZ.map(q=>q.k))];
-  filt.innerHTML='<option value="">Všechna témata ('+G.QUIZ.length+')</option>'+cats.map(c=>'<option>'+esc(c)+'</option>').join('');
+  filt.innerHTML='<option value="">'+T('alltopics')+' ('+G.QUIZ.length+')</option>'+cats.map(c=>'<option>'+esc(c)+'</option>').join('');
   function draw(){
     const f=filt.value; let h='';
     G.QUIZ.forEach((q,i)=>{ if(f&&q.k!==f) return;
@@ -2242,8 +3902,8 @@ function renderQuiz(){
       state.quiz[i]=ok; save(); const f=d.querySelector('.qz-fb'); f.innerHTML=fbq(q,ok); f.classList.remove('hidden'); score();
     });
   }
-  function fbq(q,ok){ return '<span class="'+(ok?'ok':'err')+'">'+(ok?'Správně. ':'Špatně. ')+'Je to '+(q.a?'RICHTIG':'FALSCH')+'.</span> '+esc(q.w); }
-  function score(){ const k=Object.keys(state.quiz); const ok=k.filter(x=>state.quiz[x]).length; document.getElementById('quiz-score').textContent=ok+' / '+k.length+' správně (z '+G.QUIZ.length+' otázek)'; }
+  function fbq(q,ok){ return '<span class="'+(ok?'ok':'err')+'">'+(ok?T('qok'):T('qbad'))+T('qis')+(q.a?'RICHTIG':'FALSCH')+'.</span> '+esc((LANG==='de'&&q.wde)?q.wde:q.w); }
+  function score(){ const k=Object.keys(state.quiz); const ok=k.filter(x=>state.quiz[x]).length; document.getElementById('quiz-score').textContent=T('qscore',ok,k.length,G.QUIZ.length); }
   filt.onchange=draw;
   document.getElementById('quiz-reset').onclick=()=>{ state.quiz={}; save(); draw(); };
   document.getElementById('quiz-wrong').onclick=()=>{ Object.keys(state.quiz).forEach(k=>{ if(!state.quiz[k]) delete state.quiz[k]; }); save(); draw(); };
@@ -2256,7 +3916,7 @@ function renderGlossar(){
   const inp=document.getElementById('gl-search'), hide=document.getElementById('gl-hide');
   function draw(){
     const q=inp.value.toLowerCase();
-    tb.innerHTML=G.GLOSSAR.filter(g=>!q||g.join(' ').toLowerCase().includes(q)).map(g=>'<tr><td><b>'+esc(g[0])+'</b></td><td class="glcz">'+esc(g[1])+'</td><td class="glcz">'+esc(g[2])+'</td><td>'+esc(g[3])+'</td></tr>').join('');
+    tb.innerHTML=G.GLOSSAR.filter(g=>!q||g.join(' ').toLowerCase().includes(q)).map(g=>'<tr><td><b>'+esc(g[0])+'</b></td><td class="glcz">'+esc(g[1])+'</td><td class="glcz">'+esc(g[2])+'</td><td>'+esc(LANG==='de'&&g[4]?g[4]:g[3])+'</td></tr>').join('');
     tb.closest('table').classList.toggle('hidecz',hide.checked);
   }
   inp.oninput=draw; hide.onchange=draw; draw();
@@ -2268,7 +3928,7 @@ function initSandbox(){
   const sel=document.getElementById('sb-db'), ta=document.getElementById('sb-sql'), out=document.getElementById('sb-out');
   const get=()=>{ const n=sel.value; if(!sandboxDBs[n]) sandboxDBs[n]=newDB(n); return sandboxDBs[n]; };
   document.getElementById('sb-run').onclick=()=>showRun(out,run(get(),ta.value));
-  document.getElementById('sb-reset').onclick=()=>{ const n=sel.value; if(sandboxDBs[n]) sandboxDBs[n].close(); sandboxDBs[n]=newDB(n); out.innerHTML='<div class="ok">Databáze '+(n==='park'?'Freizeitpark':'Bibliothek')+' obnovena do původního stavu.</div>'; };
+  document.getElementById('sb-reset').onclick=()=>{ const n=sel.value; if(sandboxDBs[n]) sandboxDBs[n].close(); sandboxDBs[n]=newDB(n); out.innerHTML='<div class="ok">'+T('reset',n==='park'?'Freizeitpark':'Bibliothek')+'</div>'; };
   ta.addEventListener('keydown',e=>{ if((e.ctrlKey||e.metaKey)&&e.key==='Enter'){ e.preventDefault(); document.getElementById('sb-run').click(); } });
   document.querySelectorAll('[data-sbtable]').forEach(b=>b.onclick=()=>{ ta.value='SELECT * FROM '+b.dataset.sbtable+';'; sel.value=b.dataset.sbdb; document.getElementById('sb-run').click(); });
   sel.onchange=()=>{ document.querySelectorAll('.sb-schema').forEach(x=>x.classList.toggle('hidden',x.dataset.db!==sel.value)); };
@@ -2293,7 +3953,7 @@ function updateProgress(){
   });
   const all=[...document.querySelectorAll('.ex')], d=all.filter(e=>state.done[e.dataset.id]).length;
   const pb=document.getElementById('pbar'); if(pb){ pb.style.width=(all.length?100*d/all.length:0)+'%'; }
-  const pt=document.getElementById('ptext'); if(pt) pt.textContent=d+' / '+all.length+' cvičení hotovo';
+  const pt=document.getElementById('ptext'); if(pt) pt.textContent=T('progress',d,all.length);
 }
 
 /* --- Timer für Klausur-Simulation --- */
@@ -2301,9 +3961,9 @@ function initTimer(){
   const b=document.getElementById('timer-btn'), t=document.getElementById('timer'); if(!b) return;
   let end=null, iv=null;
   b.onclick=()=>{
-    if(iv){ clearInterval(iv); iv=null; b.textContent='▶ Spustit časomíru (60 min)'; t.textContent=''; return; }
-    end=Date.now()+60*60000; b.textContent='■ Zastavit';
-    iv=setInterval(()=>{ const s=Math.max(0,Math.round((end-Date.now())/1000)); t.textContent='⏱ '+Math.floor(s/60)+':'+pad(s%60); if(s===0){clearInterval(iv);iv=null;t.textContent='⏱ Čas vypršel – odevzdej!';} },500);
+    if(iv){ clearInterval(iv); iv=null; b.textContent=T('timer'); t.textContent=''; return; }
+    end=Date.now()+60*60000; b.textContent=T('stop');
+    iv=setInterval(()=>{ const s=Math.max(0,Math.round((end-Date.now())/1000)); t.textContent='⏱ '+Math.floor(s/60)+':'+pad(s%60); if(s===0){clearInterval(iv);iv=null;t.textContent=T('timeup');} },500);
   };
 }
 
@@ -2350,6 +4010,7 @@ function addChapterNav(){
   const secs=[...document.querySelectorAll('section.ch')];
   const title=s=>{ const a=document.querySelector('#nav a[href="#'+s.id+'"]'); return a? a.firstChild.textContent.trim() : s.id; };
   secs.forEach((s,i)=>{
+    if(s.querySelector(':scope > .chnav')) return;
     const d=document.createElement('div'); d.className='chnav';
     d.innerHTML=(i>0?'<a href="#'+secs[i-1].id+'">← '+esc(title(secs[i-1]))+'</a>':'<span></span>')+(i<secs.length-1?'<a href="#'+secs[i+1].id+'">'+esc(title(secs[i+1]))+' →</a>':'<span></span>');
     s.appendChild(d);
@@ -2385,14 +4046,14 @@ function initKeybar(){
 
 /* --- Fortschritt in der Cloud (iPhone ↔ iPad ↔ Laptop) --- */
 let cloudRef=null, pushTimer=null, writing=false, dirty=false;
-function syncMsg(t,cls){ document.querySelectorAll('.sync').forEach(x=>{ x.textContent=t; x.className='sync '+(cls||''); }); }
+function syncMsg(k,cls){ lastSync=[k,cls]; const t=(I18N.cz[k]!==undefined)?T(k):k; document.querySelectorAll('.sync').forEach(x=>{ x.textContent=t; x.className='sync '+(cls||''); }); }
 function schedulePush(){ if(!cloudRef) return; clearTimeout(pushTimer); pushTimer=setTimeout(push,1500); }
 async function push(){
   if(!cloudRef) return;
   if(writing){ dirty=true; return; }
   writing=true; dirty=false;
-  try{ await cloudRef.set({done:state.done, quiz:state.quiz, notes:state.notes, t:state.t||Date.now()}); syncMsg('☁️ uloženo v cloudu','ok-s'); }
-  catch(e){ syncMsg('💾 cloud: '+(e&&e.code||'chyba')+' – ukládám jen v zařízení','warn-s'); }
+  try{ await cloudRef.set({done:state.done, quiz:state.quiz, notes:state.notes, t:state.t||Date.now()}); syncMsg('s_saved','ok-s'); }
+  catch(e){ syncMsg('s_err','warn-s'); }
   writing=false; if(dirty) push();
 }
 function mergeRemote(r){
@@ -2417,26 +4078,26 @@ function refreshUI(){
 }
 async function pull(){
   if(!cloudRef) return;
-  try{ const snap=await cloudRef.get(); if(snap.exists && mergeRemote(snap.data())) refreshUI(); syncMsg('☁️ synchronizováno','ok-s'); }
-  catch(e){ syncMsg('💾 cloud teď nedostupný – ukládám v zařízení','warn-s'); }
+  try{ const snap=await cloudRef.get(); if(snap.exists && mergeRemote(snap.data())) refreshUI(); syncMsg('s_sync','ok-s'); }
+  catch(e){ syncMsg('s_off','warn-s'); }
 }
 async function initCloud(){
-  if(!(window.claude && typeof claude.use==='function')){ syncMsg('💾 pokrok se ukládá jen v tomto zařízení'); return; }
-  syncMsg('☁️ připojuji cloud…');
-  const to=setTimeout(()=>syncMsg('💾 cloud zatím nedostupný – ukládám v zařízení','warn-s'),10000);
+  if(!(window.claude && typeof claude.use==='function')){ syncMsg('s_local'); return; }
+  syncMsg('s_conn');
+  const to=setTimeout(()=>syncMsg('s_wait','warn-s'),10000);
   try{
     const [db,user]=await Promise.all([claude.use('db'),claude.use('user')]);
-    if(!db||!user){ clearTimeout(to); syncMsg('💾 pokrok se ukládá jen v tomto zařízení'); return; }
+    if(!db||!user){ clearTimeout(to); syncMsg('s_local'); return; }
     const id=await user.id();
-    if(!id){ clearTimeout(to); syncMsg('💾 pokrok se ukládá jen v tomto zařízení'); return; }
+    if(!id){ clearTimeout(to); syncMsg('s_local'); return; }
     cloudRef=db.doc('data/users/'+id+'/progress');
     const snap=await cloudRef.get(); clearTimeout(to);
     const remote = snap.exists ? snap.data() : null;
     if(remote && mergeRemote(remote)) refreshUI();
-    syncMsg('☁️ synchronizováno','ok-s');
+    syncMsg('s_sync','ok-s');
     if(!remote || (state.t||0)>(remote.t||0) || JSON.stringify(state.done)!==JSON.stringify(remote.done||{})) push();
     document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='visible') pull(); });
-  }catch(e){ clearTimeout(to); cloudRef=null; syncMsg('💾 pokrok se ukládá jen v tomto zařízení','warn-s'); }
+  }catch(e){ clearTimeout(to); cloudRef=null; syncMsg('s_local','warn-s'); }
 }
 
 
@@ -2445,31 +4106,53 @@ function initZoom(){
   let z=1; try{ z=parseFloat(localStorage.getItem('dbZoom'))||1; }catch(e){}
   const apply=()=>{ document.body.style.zoom=z; document.querySelectorAll('.zval').forEach(x=>x.textContent=Math.round(z*100)+' %'); try{ localStorage.setItem('dbZoom',z); }catch(e){} };
   document.querySelectorAll('.zoom').forEach(box=>{
-    box.innerHTML='<button type="button" class="ghost small" data-z="-1" aria-label="menší">A−</button><span class="zval"></span><button type="button" class="ghost small" data-z="1" aria-label="větší">A+</button>';
+    if(box.dataset.ok) return; box.dataset.ok='1';
+    box.innerHTML='<button type="button" class="ghost small" data-z="-1" aria-label="'+T('smaller')+'">A−</button><span class="zval"></span><button type="button" class="ghost small" data-z="1" aria-label="'+T('bigger')+'">A+</button>';
     box.addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b) return; z=Math.min(1.8,Math.max(0.8,Math.round((z+0.1*b.dataset.z)*10)/10)); apply(); });
   });
   apply();
 }
 
 /* --- Start --- */
-async function boot(){
+let lastSync=null, engineState=null;
+function mount(){
+  const root=document.getElementById('root'); if(!root) return;
+  const tpl=document.getElementById('tpl-'+LANG)||document.getElementById('tpl-cz'); if(!tpl) return;
+  root.innerHTML=''; root.appendChild(tpl.content.cloneNode(true));
+  document.documentElement.lang = LANG==='de'?'de':'cs';
+}
+function setupUI(){
   document.querySelectorAll('[data-erd]').forEach(el=>{ el.classList.add('scrollx'); el.innerHTML=erd(G.ERD_SPECS[el.dataset.erd]); });
-  addChapterNav(); initKeybar(); initZoom();
+  addChapterNav(); initZoom();
   const sbta=document.getElementById('sb-sql'); if(sbta){ ['autocapitalize','autocomplete','autocorrect'].forEach(a=>sbta.setAttribute(a,'off')); }
-  window.addEventListener('hashchange',route); route();
   const ms=document.getElementById('mnav'); if(ms) ms.onchange=()=>{ location.hash=ms.value; };
   document.querySelectorAll('.reveal-btn').forEach(b=>b.onclick=()=>{ const t=document.getElementById(b.dataset.t); t.classList.toggle('hidden'); });
+  document.querySelectorAll('.langsw button').forEach(b=>{ b.classList.toggle('on',b.dataset.lang===LANG); b.onclick=()=>setLang(b.dataset.lang); });
   renderQuiz(); renderGlossar(); initTimer();
-  const st=document.getElementById('engine-status');
-  try{
-    SQL = await initSqlJs();
+  if(SQL){
     document.querySelectorAll('.ex').forEach(renderExercise);
     document.querySelectorAll('.demo').forEach(renderDemo);
     initSandbox(); updateProgress();
-    if(st) st.textContent='SQL motor připraven ✓';
+  }
+  const st=document.getElementById('engine-status');
+  if(st && engineState==='ok') st.textContent=T('ready');
+  if(st && engineState && engineState!=='ok'){ st.textContent=T('fail')+engineState; st.className='err'; }
+  if(lastSync) syncMsg(lastSync[0],lastSync[1]);
+  route();
+}
+function setLang(l){
+  if(l===LANG) return; LANG=l; try{ localStorage.setItem('dbLang',l); }catch(e){}
+  const y=window.scrollY; mount(); setupUI();
+}
+async function boot(){
+  mount(); setupUI(); initKeybar();
+  window.addEventListener('hashchange',route);
+  try{
+    SQL = await initSqlJs(); engineState='ok';
+    setupUI();
     initCloud();
   }catch(e){
-    if(st){ st.textContent='SQL motor se nenačetl: '+e.message; st.className='err'; }
+    engineState=e.message||'error'; setupUI();
   }
 }
 document.addEventListener('DOMContentLoaded',boot);
